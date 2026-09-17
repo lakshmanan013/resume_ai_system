@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block container_class %} admin-container-wrap{% endblock %}
+{% block content %}
+<div class="admin-wrapper">
+  <aside class="admin-sidebar-card">
+    <div class="admin-sidebar-header">
+      <span class="admin-shield-icon">🛡️</span>
+      <div>
+        <div class="admin-sidebar-title">Admin Console</div>
+        <div class="admin-sidebar-subtitle">Superuser Controls</div>
+      </div>
+    </div>
+    <nav class="admin-nav">
+      <a href="{{ url_for('admin_dashboard') }}" class="admin-nav-item {{ 'active' if active=='dashboard' else '' }}">
+        <span class="admin-nav-icon">📊</span>
+        <span class="admin-nav-label">Overview</span>
+      </a>
+      <a href="{{ url_for('admin_users') }}" class="admin-nav-item {{ 'active' if active=='users' else '' }}">
+        <span class="admin-nav-icon">👥</span>
+        <span class="admin-nav-label">Manage Users</span>
+      </a>
+      <a href="{{ url_for('admin_jobs') }}" class="admin-nav-item {{ 'active' if active=='jobs' else '' }}">
+        <span class="admin-nav-icon">💼</span>
+        <span class="admin-nav-label">Job Listings</span>
+      </a>
+      <a href="{{ url_for('admin_resumes') }}" class="admin-nav-item {{ 'active' if active=='resumes' else '' }}">
+        <span class="admin-nav-icon">📄</span>
+        <span class="admin-nav-label">Resumes</span>
+      </a>
+      <a href="{{ url_for('admin_matches') }}" class="admin-nav-item {{ 'active' if active=='matches' else '' }}">
+        <span class="admin-nav-icon">🎯</span>
+        <span class="admin-nav-label">Matching Logs</span>
+      </a>
+      <a href="{{ url_for('admin_reports') }}" class="admin-nav-item {{ 'active' if active=='reports' else '' }}">
+        <span class="admin-nav-icon">📈</span>
+        <span class="admin-nav-label">Analytics &amp; Reports</span>
+      </a>
+    </nav>
+    <div class="admin-sidebar-footer">
+      <a href="{{ url_for('dashboard') }}" class="admin-nav-item user-portal-link">
+        <span class="admin-nav-icon">👤</span>
+        <span class="admin-nav-label">Candidate Dashboard</span>
+      </a>
+    </div>
+  </aside>
+
+  <div class="admin-main-content">
+    {% block admin_content %}{% endblock %}
+  </div>
+</div>
+{% endblock %}

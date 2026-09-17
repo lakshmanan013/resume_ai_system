@@ -1,0 +1,124 @@
+{% extends "admin/base_admin.html" %}
+{% set active = 'jobs' %}
+{% block title %}Manage Job Listings · Admin Portal{% endblock %}
+{% block admin_content %}
+<div class="flex-between" style="margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <h2 class="mt-0">Live Job Listings</h2>
+    <p class="text-muted">Manage active openings and real-time feeds from Shine &amp; Naukri platforms.</p>
+  </div>
+  <div style="display:flex; gap:10px; align-items:center;">
+    <button type="button" id="admin-sync-jobs-btn" class="btn btn-secondary btn-sm" style="background:#eef2ff; color:var(--primary-dark); border-color:var(--primary-border);">
+      ⚡ Live Sync Real-Time Jobs
+    </button>
+    <a href="{{ url_for('admin_new_job') }}" class="btn btn-primary btn-sm">+ Create New Job</a>
+  </div>
+</div>
+
+<div class="toolbar-card">
+  <div class="toolbar-group" style="flex:1; min-width:240px;">
+    <div style="width:100%;">
+      <label style="margin-bottom:4px; font-size:0.8rem; font-weight:600;">Search Jobs</label>
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" data-table-target="jobs-table" placeholder="Live search by role, company, location, or skill...">
+      </div>
+    </div>
+  </div>
+  <div class="toolbar-group">
+    <div>
+      <label style="margin-bottom:4px; font-size:0.8rem; font-weight:600;">Work Mode</label>
+      <select data-table-mode="jobs-table" style="min-width:140px;">
+        <option value="">All Modes</option>
+        <option value="remote">Remote</option>
+        <option value="hybrid">Hybrid</option>
+        <option value="onsite">Onsite</option>
+        <option value="full-time">Full-Time</option>
+      </select>
+    </div>
+    <div>
+      <label style="margin-bottom:4px; font-size:0.8rem; font-weight:600;">Status</label>
+      <select data-table-status="jobs-table" style="min-width:140px;">
+        <option value="">All Statuses</option>
+        <option value="active">Active</option>
+        <option value="hidden">Hidden</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="card-table-wrap">
+  <div class="table-responsive">
+    <table class="admin-table admin-searchable-table" id="jobs-table">
+      <thead>
+        <tr>
+          <th data-sort="text">Role &amp; Company</th>
+          <th data-sort="text">Location &amp; Mode</th>
+          <th data-sort="num" style="text-align:center;">Min Exp</th>
+          <th data-sort="num" style="text-align:center;">Openings</th>
+          <th data-sort="text">Source Feed</th>
+          <th>Required Skills</th>
+          <th data-sort="text">Status</th>
+          <th style="text-align:right; cursor:default;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for j in jobs %}
+        <tr id="job-row-{{ j.id }}" 
+            data-status="{{ 'active' if j.is_active else 'hidden' }}"
+            data-mode="{{ j.job_type|lower }}">
+          <td>
+            <div style="font-weight:700; color:var(--text-main); font-size:0.95rem;">{{ j.title }}</div>
+            <div class="text-muted" style="font-size:0.84rem;">🏢 {{ j.company }}</div>
+          </td>
+          <td>
+            <div style="font-size:0.88rem; font-weight:500;">📍 {{ j.location }}</div>
+            <span class="badge {{ 'badge-skill' if j.job_type == 'Remote' else 'badge-inactive' }}" style="font-size:0.75rem; margin-top:3px;">
+              {{ j.job_type }}
+            </span>
+          </td>
+          <td style="white-space:nowrap; font-weight:600; text-align:center;">{{ j.min_experience }} yrs</td>
+          <td style="white-space:nowrap; text-align:center;">
+            <span class="badge badge-active" style="font-size:0.78rem;">{{ j.openings_count }} slots</span>
+          </td>
+          <td>
+            <span style="font-size:0.82rem; color:var(--text-muted); font-weight:600;">{{ j.source }}</span>
+          </td>
+          <td>
+            <div class="skill-tags">
+              {% for s in j.required_skills[:3] %}
+                <span class="badge badge-skill" style="font-size:0.75rem;">{{ s }}</span>
+              {% endfor %}
+              {% if j.required_skills|length > 3 %}
+                <span class="badge badge-skill" style="font-size:0.75rem;">+{{ j.required_skills|length - 3 }}</span>
+              {% endif %}
+            </div>
+          </td>
+          <td>
+            <span class="badge {{ 'badge-active' if j.is_active else 'badge-inactive' }} job-status-badge">
+              {{ 'active' if j.is_active else 'hidden' }}
+            </span>
+          </td>
+          <td style="white-space:nowrap; text-align:right;">
+            <div class="table-actions">
+              <a href="{{ url_for('admin_edit_job', job_id=j.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+              <button type="button" 
+                      class="btn btn-secondary btn-sm ajax-toggle-job"
+                      data-job-id="{{ j.id }}">
+                {{ 'Hide' if j.is_active else 'Show' }}
+              </button>
+              <button type="button" 
+                      class="btn btn-danger btn-sm ajax-delete-job"
+                      data-job-id="{{ j.id }}"
+                      data-job-title="{{ j.title }}">
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

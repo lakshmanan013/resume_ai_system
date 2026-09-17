@@ -1,0 +1,79 @@
+{% extends "admin/base_admin.html" %}
+{% set active = 'resumes' %}
+{% block title %}Candidate Resumes · Admin{% endblock %}
+{% block admin_content %}
+<div class="flex-between" style="margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <h2 class="mt-0">Candidate Resumes</h2>
+    <p class="text-muted">Browse all uploaded resumes, extracted skills, and candidate profiles.</p>
+  </div>
+</div>
+
+<div class="toolbar-card">
+  <div class="toolbar-group" style="flex:1; min-width:260px;">
+    <div style="width:100%;">
+      <label style="margin-bottom:4px; font-size:0.8rem; font-weight:600; color:var(--text-muted);">Search Candidates &amp; Resumes</label>
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" data-table-target="resumes-table" placeholder="Live search by candidate name, user email, filename, or skill...">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card-table-wrap">
+  <div class="table-responsive">
+    <table class="admin-table admin-searchable-table" id="resumes-table">
+      <thead>
+        <tr>
+          <th data-sort="text">Candidate Name</th>
+          <th data-sort="text">Account Email</th>
+          <th data-sort="text">Document File</th>
+          <th data-sort="num" style="text-align:center;">Experience</th>
+          <th>Extracted Skills</th>
+          <th data-sort="text">Uploaded Date</th>
+          <th style="text-align:right; cursor:default;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in resumes %}
+        <tr>
+          <td>
+            <div class="user-avatar-cell">
+              <div class="user-avatar-circle">{{ (r.parsed_name or r.user_name)[:1]|upper }}</div>
+              <div>
+                <strong style="color:var(--text-main);">{{ r.parsed_name or r.user_name }}</strong>
+              </div>
+            </div>
+          </td>
+          <td>{{ r.user_email }}</td>
+          <td>
+            <span style="font-size:0.86rem; font-weight:600; color:var(--text-body);">📄 {{ r.filename }}</span>
+          </td>
+          <td style="white-space:nowrap; font-weight:600; text-align:center;">
+            {{ r.experience_years ~ ' yrs' if r.experience_years is not none else '0 yrs' }}
+          </td>
+          <td>
+            <div class="skill-tags">
+              {% for s in r.skills[:4] %}
+                <span class="badge badge-skill" style="font-size:0.75rem;">{{ s }}</span>
+              {% endfor %}
+              {% if r.skills|length > 4 %}
+                <span class="badge badge-skill" style="font-size:0.75rem;">+{{ r.skills|length - 4 }}</span>
+              {% endif %}
+            </div>
+          </td>
+          <td>{{ r.uploaded_at[:10] }}</td>
+          <td style="white-space:nowrap; text-align:right;">
+            <div class="table-actions">
+              <a href="{{ url_for('resume_analysis', resume_id=r.id) }}" class="btn btn-secondary btn-sm">Analysis</a>
+              <a href="{{ url_for('admin_download_resume', resume_id=r.id) }}" class="btn btn-secondary btn-sm">Download</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

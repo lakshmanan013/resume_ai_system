@@ -1,0 +1,46 @@
+{% extends "admin/base_admin.html" %}
+{% set active = 'users' %}
+{% block title %}Edit User Account · Admin Portal{% endblock %}
+{% block admin_content %}
+<div style="margin-bottom: 16px;">
+  <a href="{{ url_for('admin_users') }}" class="btn btn-secondary btn-sm">&larr; Back to Users Directory</a>
+</div>
+
+<div class="card" style="max-width: 580px;">
+  <div class="flex-between" style="margin-bottom: 20px;">
+    <div>
+      <h2 class="mt-0" style="margin-bottom: 4px;">Edit User Profile</h2>
+      <p class="text-muted" style="font-size: 0.88rem; margin-bottom: 0;">Update account credentials, display name, and administrative privileges.</p>
+    </div>
+    <div class="user-avatar-circle" style="width: 44px; height: 44px; font-size: 1.1rem;">
+      {{ user.name[:1]|upper }}
+    </div>
+  </div>
+
+  <form method="POST">
+    <div class="form-group">
+      <label for="name">Full Name</label>
+      <input type="text" id="name" name="name" value="{{ user.name }}" placeholder="e.g. John Doe" required>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" value="{{ user.email }}" placeholder="e.g. user@example.com" required>
+    </div>
+
+    <div class="form-group">
+      <label for="role">Account Role</label>
+      <select id="role" name="role">
+        <option value="user" {% if user.role == 'user' %}selected{% endif %}>User (Standard Access)</option>
+        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin (Full Console Access)</option>
+      </select>
+      <div class="hint">Admins have full privileges for user accounts, job feeds, and intelligence reports.</div>
+    </div>
+
+    <div style="margin-top: 24px; display: flex; gap: 12px; align-items: center;">
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+      <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

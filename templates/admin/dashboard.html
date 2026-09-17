@@ -1,0 +1,68 @@
+{% extends "admin/base_admin.html" %}
+{% set active = 'dashboard' %}
+{% block title %}Admin Overview · Admin Portal{% endblock %}
+{% block admin_content %}
+<div class="flex-between" style="margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <h2 class="mt-0">Executive Dashboard Overview</h2>
+    <p class="text-muted">Real-time system health, platform metrics, and candidate matching activity.</p>
+  </div>
+  <div style="display:flex; gap:10px; align-items:center;">
+    <button type="button" id="admin-sync-jobs-btn" class="btn btn-secondary btn-sm" style="background:#eef2ff; color:var(--primary-dark); border-color:var(--primary-border);">
+      ⚡ Live Sync Real-Time Jobs
+    </button>
+    <a href="{{ url_for('admin_new_job') }}" class="btn btn-primary btn-sm">+ Add New Job</a>
+    <a href="{{ url_for('admin_reports') }}" class="btn btn-secondary btn-sm">Full Analytics &rarr;</a>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-box"><div class="num">{{ stats.total_users }}</div><div class="label">Total Users</div></div>
+  <div class="stat-box"><div class="num">{{ stats.active_users }}</div><div class="label">Active Users</div></div>
+  <div class="stat-box"><div class="num">{{ stats.total_resumes }}</div><div class="label">Resumes Parsed</div></div>
+  <div class="stat-box"><div class="num">{{ stats.total_jobs }}</div><div class="label">Active Jobs</div></div>
+  <div class="stat-box"><div class="num">{{ stats.total_matches }}</div><div class="label">Matches Evaluated</div></div>
+  <div class="stat-box"><div class="num">{{ stats.avg_match_score }}%</div><div class="label">Avg Match Score</div></div>
+</div>
+
+<div class="card" style="padding: 24px;">
+  <div class="flex-between" style="margin-bottom: 18px; flex-wrap:wrap; gap:12px;">
+    <div>
+      <h3 class="mt-0" style="margin-bottom:4px;">Top In-Demand Jobs (Most Matched)</h3>
+      <p class="text-muted" style="font-size:0.86rem; margin-bottom:0;">Live ranking of job postings with highest applicant match volume.</p>
+    </div>
+    <a href="{{ url_for('admin_jobs') }}" class="btn btn-secondary btn-sm">Manage All Jobs &rarr;</a>
+  </div>
+  {% if stats.top_jobs %}
+  <div class="table-responsive">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Job Title</th>
+          <th>Hiring Company</th>
+          <th style="text-align:center;">Candidate Match Count</th>
+          <th style="text-align:right;">Avg Fit Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for j in stats.top_jobs %}
+        {% set score_class = 'high' if j.avg_score >= 70 else 'mid' if j.avg_score >= 40 else 'low' %}
+        <tr>
+          <td><strong style="color:var(--text-main);">{{ j.title }}</strong></td>
+          <td>🏢 {{ j.company }}</td>
+          <td style="text-align:center;"><span class="badge badge-skill">{{ j.matches }} matches</span></td>
+          <td style="text-align:right;">
+            <span class="score-num {{ score_class }}" style="font-size:1rem; display:inline-block; padding:3px 10px; border-radius:var(--radius-full);">
+              {{ j.avg_score|round(1) }}%
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state" style="padding: 32px 16px;"><p class="text-muted">No matching activity recorded yet.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

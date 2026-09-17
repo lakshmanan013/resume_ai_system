@@ -1,0 +1,9 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "extraPaths": [
+    ".",
+    "C:/Users/laksh/AppData/Local/Python/pythoncore-3.14-64/Lib/site-packages",
+    "c:/Users/laksh/OneDrive/Desktop/resume_ai_system/.venv/Lib/site-packages"
+  ]
+}

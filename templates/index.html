@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}AI Resume Matching &amp; Recommendations{% endblock %}
+{% block content %}
+<div class="hero">
+  <div class="hero-badge">⚡ Instant AI Skill Matching &amp; Gap Analysis</div>
+  <h1>Find the right job, matched to your resume in real time.</h1>
+  <p>Upload your resume and let our explainable AI engine analyze your skill set, highlight skill gaps, and dynamically rank matching roles to help you land your next opportunity.</p>
+  <div class="actions">
+    {% if current_user %}
+      <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Go to Dashboard &rarr;</a>
+      <a href="{{ url_for('job_recommendations') }}" class="btn btn-secondary">Explore Matches</a>
+    {% else %}
+      <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started Free &rarr;</a>
+      <a href="{{ url_for('login') }}" class="btn btn-secondary">Sign In</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <div class="feature-icon-wrapper">📄</div>
+    <h3>Instant Resume Parsing</h3>
+    <p class="text-muted">Extract contact information, education, experience, and categorized technical skills instantly from PDF and DOCX files.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon-wrapper">🎯</div>
+    <h3>Real-Time Skill Matching</h3>
+    <p class="text-muted">Dynamic weighted percentage match scores calculated across required and preferred skills with interactive threshold filtering.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon-wrapper">💡</div>
+    <h3>Interactive Skill Simulator</h3>
+    <p class="text-muted">Simulate adding new skills or certifications on the fly to see real-time score boosts and personalized growth pathways.</p>
+  </div>
+</div>
+{% endblock %}

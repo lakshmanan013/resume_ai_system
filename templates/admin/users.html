@@ -1,0 +1,103 @@
+{% extends "admin/base_admin.html" %}
+{% set active = 'users' %}
+{% block title %}Manage Users · Admin Portal{% endblock %}
+{% block admin_content %}
+<div class="flex-between" style="margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <h2 class="mt-0">User Accounts</h2>
+    <p class="text-muted">Manage system users, view roles, and toggle access in real time.</p>
+  </div>
+</div>
+
+<div class="toolbar-card">
+  <div class="toolbar-group" style="flex:1; min-width:240px;">
+    <div style="width:100%;">
+      <label style="margin-bottom:4px; font-size:0.8rem; font-weight:600; color:var(--text-muted);">Search Users</label>
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" data-table-target="users-table" placeholder="Live search by name or email...">
+      </div>
+    </div>
+  </div>
+  <div class="toolbar-group">
+    <div>
+      <label style="margin-bottom:4px; font-size:0.8rem; font-weight:600; color:var(--text-muted);">Filter Role</label>
+      <select data-table-role="users-table" style="min-width:140px;">
+        <option value="">All Roles</option>
+        <option value="admin">Admins</option>
+        <option value="user">Standard Users</option>
+      </select>
+    </div>
+    <div>
+      <label style="margin-bottom:4px; font-size:0.8rem; font-weight:600; color:var(--text-muted);">Filter Status</label>
+      <select data-table-status="users-table" style="min-width:140px;">
+        <option value="">All Statuses</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="card-table-wrap">
+  <div class="table-responsive">
+    <table class="admin-table admin-searchable-table" id="users-table">
+      <thead>
+        <tr>
+          <th data-sort="text">User Profile</th>
+          <th data-sort="text">Email Address</th>
+          <th data-sort="text">Role</th>
+          <th data-sort="text">Account Status</th>
+          <th data-sort="text">Joined Date</th>
+          <th style="text-align:right; cursor:default;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr id="user-row-{{ u.id }}" 
+            data-role="{{ u.role }}" 
+            data-status="{{ 'active' if u.is_active else 'inactive' }}">
+          <td>
+            <div class="user-avatar-cell">
+              <div class="user-avatar-circle">{{ u.name[:1]|upper }}</div>
+              <div>
+                <div style="font-weight:700; color:var(--text-main);">{{ u.name }}</div>
+                {% if u.id == current_user['id'] %}
+                  <span style="font-size:0.75rem; color:var(--primary); font-weight:600;">(Current Session)</span>
+                {% endif %}
+              </div>
+            </div>
+          </td>
+          <td>{{ u.email }}</td>
+          <td>
+            {% if u.role == 'admin' %}
+              <span class="badge badge-admin">admin</span>
+            {% else %}
+              <span class="badge badge-inactive">user</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="badge {{ 'badge-active' if u.is_active else 'badge-inactive' }} user-status-badge">
+              {{ 'active' if u.is_active else 'inactive' }}
+            </span>
+          </td>
+          <td>{{ u.created_at[:10] }}</td>
+          <td style="white-space:nowrap; text-align:right;">
+            <div class="table-actions">
+              <a href="{{ url_for('admin_edit_user', user_id=u.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+              {% if u.id != current_user['id'] %}
+              <button type="button" 
+                      class="btn btn-sm {{ 'btn-danger' if u.is_active else 'btn-secondary' }} ajax-toggle-user"
+                      data-user-id="{{ u.id }}">
+                {{ 'Deactivate' if u.is_active else 'Reactivate' }}
+              </button>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

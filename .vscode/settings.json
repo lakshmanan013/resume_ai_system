@@ -1,0 +1,9 @@
+{
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+    "python.venvPath": "${workspaceFolder}",
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}",
+        "C:/Users/laksh/AppData/Local/Python/pythoncore-3.14-64/Lib/site-packages",
+        "${workspaceFolder}/.venv/Lib/site-packages"
+    ]
+}

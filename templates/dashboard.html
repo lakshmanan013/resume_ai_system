@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Candidate Dashboard{% endblock %}
+{% block content %}
+<div class="flex-between" style="margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <h2 class="mt-0">Welcome back, {{ current_user['name'] }}!</h2>
+    <p class="text-muted">Manage your AI profile, resume analysis, and job recommendations.</p>
+  </div>
+  {% if resume %}
+  <div style="display:flex; gap:10px;">
+    <a href="{{ url_for('resume_analysis', resume_id=resume.id) }}" class="btn btn-secondary btn-sm">⚙ Edit Skills</a>
+    <a href="{{ url_for('upload_resume') }}" class="btn btn-primary btn-sm">Upload New Resume</a>
+  </div>
+  {% endif %}
+</div>
+
+{% if not resume %}
+<div class="card empty-state">
+  <div class="icon">📄</div>
+  <h3>No resume uploaded yet</h3>
+  <p class="text-muted" style="max-width:480px; margin: 0 auto 20px;">
+    Upload your resume in PDF or DOCX to let our AI parser extract your skills and match you to the best openings.
+  </p>
+  <a href="{{ url_for('upload_resume') }}" class="btn btn-primary">Upload Your Resume &rarr;</a>
+</div>
+{% else %}
+<div class="card">
+  <div class="flex-between" style="flex-wrap:wrap; gap:14px; margin-bottom:16px;">
+    <div>
+      <h3 class="mt-0" style="font-size:1.35rem;">{{ resume.parsed_name or current_user['name'] }}</h3>
+      <p class="text-muted" style="font-size:0.9rem;">
+        📧 {{ resume.email or current_user['email'] }} &middot;
+        📞 {{ resume.phone or 'No phone detected' }} &middot;
+        ⏳ {{ resume.experience_years ~ ' yrs experience' if resume.experience_years is not none else 'Experience not specified' }}
+      </p>
+      <p class="text-muted" style="font-size:0.84rem; margin-top:4px;">
+        File: <strong>{{ resume.filename }}</strong> &middot; Uploaded on {{ resume.uploaded_at[:10] }}
+      </p>
+    </div>
+    <div>
+      <a href="{{ url_for('resume_analysis', resume_id=resume.id) }}" class="btn btn-secondary btn-sm">View Analysis Details</a>
+    </div>
+  </div>
+
+  <div style="margin-top:14px;">
+    <label style="font-size:0.85rem; color:var(--text-muted);">Active Skill Tags ({{ resume.skills|length }})</label>
+    <div class="skill-tags">
+      {% for skill in resume.skills[:15] %}
+        <span class="badge badge-skill">{{ skill }}</span>
+      {% endfor %}
+      {% if resume.skills|length > 15 %}
+        <span class="badge badge-skill">+{{ resume.skills|length - 15 }} more</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
+  <div class="flex-between" style="flex-wrap:wrap; gap:16px;">
+    <div>
+      <h3 class="mt-0">Find Your Next Role</h3>
+      <p class="text-muted">Explore AI-ranked job opportunities tailored to your unique skill set.</p>
+    </div>
+    <a href="{{ url_for('job_recommendations') }}" class="btn btn-primary">
+      <span>⚡ View Ranked Job Matches</span>
+    </a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

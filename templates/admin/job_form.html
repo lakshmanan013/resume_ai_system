@@ -1,0 +1,93 @@
+{% extends "admin/base_admin.html" %}
+{% set active = 'jobs' %}
+{% block title %}{{ 'Edit Job' if job else 'Add Job' }} · Admin Portal{% endblock %}
+{% block admin_content %}
+<div style="margin-bottom:16px;">
+  <a href="{{ url_for('admin_jobs') }}" class="btn btn-secondary btn-sm">&larr; Back to Job Listings</a>
+</div>
+
+<div class="card" style="max-width:780px;">
+  <div class="flex-between" style="margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+    <div>
+      <h2 class="mt-0" style="margin-bottom:4px;">{{ 'Edit Job Listing' if job else 'Create New Job Listing' }}</h2>
+      <p class="text-muted" style="font-size:0.88rem; margin-bottom:0;">Configure job details, skill criteria, and work mode evaluated by the matching engine.</p>
+    </div>
+  </div>
+  
+  <form method="POST">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px;">
+      <div class="form-group">
+        <label for="title">Job Title</label>
+        <input type="text" id="title" name="title" value="{{ job.title if job else '' }}" placeholder="e.g. Senior Backend Engineer" required>
+      </div>
+      <div class="form-group">
+        <label for="company">Company Name</label>
+        <input type="text" id="company" name="company" value="{{ job.company if job else '' }}" placeholder="e.g. Swiggy, Razorpay" required>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:18px;">
+      <div class="form-group">
+        <label for="location">Location</label>
+        <input type="text" id="location" name="location" value="{{ job.location if job else '' }}" placeholder="e.g. Bangalore / Remote" required>
+      </div>
+      <div class="form-group">
+        <label for="job_type">Work Mode</label>
+        <select id="job_type" name="job_type">
+          <option value="Full-Time" {% if job and job.job_type == 'Full-Time' %}selected{% endif %}>Full-Time</option>
+          <option value="Remote" {% if job and job.job_type == 'Remote' %}selected{% endif %}>Remote</option>
+          <option value="Hybrid" {% if job and job.job_type == 'Hybrid' %}selected{% endif %}>Hybrid</option>
+          <option value="Onsite" {% if job and job.job_type == 'Onsite' %}selected{% endif %}>Onsite</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="min_experience">Min Experience (Yrs)</label>
+        <input type="number" id="min_experience" name="min_experience" min="0" step="0.5"
+               value="{{ job.min_experience if job else 0 }}">
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:18px;">
+      <div class="form-group">
+        <label for="openings_count">Openings Count</label>
+        <input type="number" id="openings_count" name="openings_count" min="1"
+               value="{{ job.openings_count if job else 1 }}">
+      </div>
+      <div class="form-group">
+        <label for="source">Feed Source</label>
+        <select id="source" name="source">
+          <option value="Naukri Live Feed" {% if job and job.source == 'Naukri Live Feed' %}selected{% endif %}>Naukri Live Feed</option>
+          <option value="Shine Network" {% if job and job.source == 'Shine Network' %}selected{% endif %}>Shine Network</option>
+          <option value="Direct Portal" {% if job and job.source == 'Direct Portal' %}selected{% endif %}>Direct Portal</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Role Description &amp; Responsibilities</label>
+      <textarea id="description" name="description" rows="4" placeholder="Detailed overview of duties, tech stack, and qualifications..." required>{{ job.description if job else '' }}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="required_skills">Required Skills (comma-separated)</label>
+      <input type="text" id="required_skills" name="required_skills"
+             value="{{ job.required_skills|join(', ') if job else '' }}"
+             placeholder="python, django, sql, rest api" required>
+      <div class="hint">Core skills heavily weighted (80%) in match calculation.</div>
+    </div>
+
+    <div class="form-group">
+      <label for="preferred_skills">Preferred Skills (comma-separated, optional)</label>
+      <input type="text" id="preferred_skills" name="preferred_skills"
+             value="{{ job.preferred_skills|join(', ') if job else '' }}"
+             placeholder="docker, aws, kubernetes, redis">
+      <div class="hint">Secondary/bonus skills (20% weight in match score).</div>
+    </div>
+
+    <div style="margin-top:24px; display:flex; gap:12px; align-items:center;">
+      <button type="submit" class="btn btn-primary">{{ 'Save Changes' if job else 'Create Job Listing' }}</button>
+      <a href="{{ url_for('admin_jobs') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

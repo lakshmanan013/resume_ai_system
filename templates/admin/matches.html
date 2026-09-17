@@ -1,0 +1,67 @@
+{% extends "admin/base_admin.html" %}
+{% set active = 'matches' %}
+{% block title %}Matching Activity Logs · Admin{% endblock %}
+{% block admin_content %}
+<div class="flex-between" style="margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <h2 class="mt-0">Matching Activity Logs</h2>
+    <p class="text-muted">Real-time evaluation logs and fit scores calculated by candidates against job criteria.</p>
+  </div>
+</div>
+
+<div class="toolbar-card">
+  <div class="toolbar-group" style="flex:1; min-width:260px;">
+    <div style="width:100%;">
+      <label style="margin-bottom:4px; font-size:0.8rem; font-weight:600; color:var(--text-muted);">Search Matching History</label>
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" data-table-target="matches-table" placeholder="Live search by candidate name, job title, or company...">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card-table-wrap">
+  <div class="table-responsive">
+    <table class="admin-table admin-searchable-table" id="matches-table">
+      <thead>
+        <tr>
+          <th data-sort="text">Candidate</th>
+          <th data-sort="text">Target Role</th>
+          <th data-sort="text">Company</th>
+          <th data-sort="num" style="text-align:center;">Fit Score</th>
+          <th data-sort="text" style="text-align:right;">Evaluation Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in matches %}
+        {% set score_class = 'high' if m.score >= 70 else 'mid' if m.score >= 40 else 'low' %}
+        <tr>
+          <td>
+            <div class="user-avatar-cell">
+              <div class="user-avatar-circle">{{ m.user_name[:1]|upper }}</div>
+              <div>
+                <strong style="color:var(--text-main);">{{ m.user_name }}</strong>
+              </div>
+            </div>
+          </td>
+          <td><strong style="color:var(--text-main);">{{ m.job_title }}</strong></td>
+          <td>🏢 {{ m.company }}</td>
+          <td style="text-align:center;">
+            <span class="score-num {{ score_class }}" style="font-size:0.95rem; display:inline-block; min-width:54px; padding:3px 10px; border-radius:var(--radius-full);">
+              {{ m.score }}%
+            </span>
+          </td>
+          <td style="text-align:right; font-size:0.86rem; color:var(--text-muted);">
+            {{ m.created_at[:16].replace('T', ' ') }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if not matches %}
+  <div class="empty-state"><p class="text-muted">No matching activity recorded yet.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

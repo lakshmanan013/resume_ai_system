@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }} · Job Details{% endblock %}
+{% block content %}
+<div style="margin-bottom: 16px;">
+  <a href="{{ url_for('job_recommendations') }}" class="btn btn-secondary btn-sm">&larr; Back to all recommendations</a>
+</div>
+
+<div class="card">
+  <div class="flex-between" style="align-items:flex-start; flex-wrap:wrap; gap:16px;">
+    <div>
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap;">
+        <h1 style="font-size:1.85rem; margin:0;">{{ job.title }}</h1>
+        <span class="badge {{ 'badge-skill' if job.job_type == 'Remote' else 'badge-inactive' }}" style="font-size:0.8rem;">
+          {{ job.job_type or 'Full-Time' }}
+        </span>
+        <span class="badge badge-active" style="font-size:0.8rem;">
+          {{ job.openings_count or 1 }} opening{{ '' if job.openings_count == 1 else 's' }}
+        </span>
+      </div>
+      <div class="job-meta" style="font-size:0.95rem;">
+        <span>🏢 <strong>{{ job.company }}</strong></span> &middot;
+        <span>📍 {{ job.location }}</span> &middot;
+        <span>⏳ {{ job.min_experience }}+ years required</span> &middot;
+        <span>📡 via {{ job.source or 'Naukri Feed' }}</span>
+      </div>
+    </div>
+    
+    {% if match %}
+    {% set score_class = 'high' if match.score >= 70 else 'mid' if match.score >= 40 else 'low' %}
+    <div style="text-align:right; min-width:180px;">
+      <div class="score-num {{ score_class }}" id="job-match-score-display" style="font-size:2.2rem;">
+        {{ match.score }}%
+      </div>
+      <div class="text-muted" style="font-size:0.85rem; font-weight:600;">Personalized AI Match</div>
+      <div class="score-bar-track" style="margin-top:6px; height:8px;">
+        <div class="score-bar-fill" id="job-match-bar-fill" data-score-pct="{{ match.score }}"></div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div style="margin-top:20px; display:flex; gap:12px;">
+    <button type="button" class="btn btn-primary quick-apply-btn"
+            data-job-id="{{ job.id }}" 
+            data-job-title="{{ job.title }}" 
+            data-company="{{ job.company }}">
+      ⚡ 1-Click Apply with Current Resume
+    </button>
+  </div>
+
+  <h3>Role Overview &amp; Responsibilities</h3>
+  <p style="white-space: pre-line; line-height: 1.7; font-size: 0.95rem;">{{ job.description }}</p>
+
+  <h3>Required Skills</h3>
+  <div class="skill-tags">
+    {% for s in job.required_skills %}
+      {% if match and s in match.matched_skills %}
+        <span class="badge badge-skill">✓ {{ s }}</span>
+      {% else %}
+        <span class="badge badge-missing">✕ {{ s }} (missing)</span>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  {% if job.preferred_skills %}
+  <h3>Preferred Skills</h3>
+  <div class="skill-tags">
+    {% for s in job.preferred_skills %}
+      {% if match and s in match.matched_skills %}
+        <span class="badge badge-skill">✓ {{ s }}</span>
+      {% else %}
+        <span class="badge badge-missing">✕ {{ s }} (missing)</span>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if match %}
+  <div class="simulator-box" style="margin-top:28px;">
+    <div class="simulator-title">
+      <span>💡 Shine / Naukri Style Fit Analysis &amp; ATS Optimizer</span>
+    </div>
+    
+    <p style="font-size:0.92rem; color:#166534; margin-bottom:12px;">
+      You match <strong>{{ match.matched_skills|length }}</strong> of the listed requirements.
+    </p>
+
+    {% if match.match_reasons %}
+    <div style="margin-bottom:16px;">
+      <div style="font-weight:700; font-size:0.88rem; color:#166534; margin-bottom:4px;">Why You Match:</div>
+      <ul style="margin-left:20px; color:#14532d; font-size:0.9rem; line-height:1.6;">
+        {% for r in match.match_reasons %}
+          <li>{{ r }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if match.missing_skills and resume %}
+      <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:14px;">
+        <span style="font-weight:700; font-size:0.88rem; color:#166534;">Simulate adding ATS keyword:</span>
+        {% for s in match.missing_skills %}
+          <button type="button" 
+                  class="btn btn-secondary btn-sm simulate-skill-btn"
+                  data-resume-id="{{ resume.id }}"
+                  data-job-id="{{ job.id }}"
+                  data-skill="{{ s }}">
+            + Test "{{ s }}"
+          </button>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p style="color:#166534; font-weight:600;">You meet 100% of the listed technical skills for this role! Excellent fit.</p>
+    {% endif %}
+
+    {% if match.experience_ok is not none and not match.experience_ok %}
+      <div style="margin-top:14px; padding:10px 14px; background:#fff; border-radius:var(--radius-sm); border:1px solid #fed7aa; font-size:0.88rem; color:#9a3412;">
+        ⚠️ <strong>Experience check:</strong> This role requests at least {{ job.min_experience }} years of experience (detected on resume: {{ resume.experience_years or 0 }} yrs).
+      </div>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="card empty-state" style="margin-top:20px;">
+    <p class="text-muted"><a href="{{ url_for('upload_resume') }}">Upload your resume</a> to see your personalized AI match fit and skill gap analysis for this role.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

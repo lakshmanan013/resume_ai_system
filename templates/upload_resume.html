@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Upload Resume{% endblock %}
+{% block container_class %} medium{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="flex-between" style="margin-bottom: 12px;">
+    <h2 class="mt-0">{{ 'Update Your Resume' if existing else 'Upload Your Resume' }}</h2>
+    {% if existing %}
+      <span class="badge badge-skill">Active File on Record</span>
+    {% endif %}
+  </div>
+  
+  <p class="text-muted" style="margin-bottom: 24px;">
+    Upload your resume in PDF or DOCX format (up to 10MB). Our AI engine will parse your skills, education, and experience to generate personalized job matches.
+  </p>
+
+  {% if existing %}
+  <div class="flash" style="background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; margin-bottom:24px;">
+    <span>📄 Current active resume: <strong>{{ existing.filename }}</strong> (uploaded {{ existing.uploaded_at[:10] }}). Uploading a new resume will instantly update your matches.</span>
+  </div>
+  {% endif %}
+
+  <form method="POST" enctype="multipart/form-data" id="upload-form">
+    <div class="dropzone-container" id="dropzone">
+      <div class="dropzone-icon">☁️</div>
+      <div class="dropzone-title">Drag &amp; drop your resume file here</div>
+      <div class="dropzone-sub">or click to browse from your computer (PDF or DOCX)</div>
+      
+      <input type="file" id="resume-file" name="resume" accept=".pdf,.docx" style="display:none;" required>
+      
+      <div id="file-info-display" style="margin-top:16px;">
+        <span class="hint">Supported formats: .pdf, .docx (Max 10MB)</span>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px;">
+      <button type="submit" class="btn btn-primary btn-block" id="upload-submit" disabled>
+        <span>⚡ Analyze Resume &amp; Find Matches</span>
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

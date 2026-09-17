@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Log In{% endblock %}
+{% block container_class %} narrow{% endblock %}
+{% block content %}
+<div class="card">
+  <h2 class="mt-0">Log in</h2>
+  <form method="POST" novalidate>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" value="{{ email or '' }}" required autofocus>
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">Log In</button>
+  </form>
+  <p style="text-align:center; margin-top:16px; font-size:0.9rem;">
+    No account yet? <a href="{{ url_for('register') }}">Sign up</a>
+  </p>
+  <p style="text-align:center; font-size:0.8rem;" class="text-muted">
+    Demo admin login: admin@resumeai.local / Admin@123
+  </p>
+</div>
+{% endblock %}

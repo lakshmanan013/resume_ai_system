@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Job Recommendations · Naukri &amp; Shine Live Matches{% endblock %}
+{% block content %}
+<div class="flex-between" style="margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <h2 class="mt-0">AI Job Matches</h2>
+    <p class="text-muted">Real-time matching across live openings from Shine, Naukri &amp; direct employers.</p>
+  </div>
+  <div style="display:flex; gap:10px; align-items:center;">
+    <a href="{{ url_for('resume_analysis', resume_id=resume.id) }}" class="btn btn-secondary btn-sm">
+      ⚙ Edit Skills &amp; Profile
+    </a>
+  </div>
+</div>
+
+<div class="toolbar-card">
+  <div class="toolbar-group" style="flex: 1; min-width: 220px;">
+    <div style="width: 100%;">
+      <label for="job-search-input" style="margin-bottom:4px; font-size:0.8rem; font-weight:600;">Search Roles</label>
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="job-search-input" placeholder="Search by role, company, or skill...">
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar-group">
+    <div>
+      <label for="work-mode-filter" style="margin-bottom:4px; font-size:0.8rem; font-weight:600;">Work Mode</label>
+      <select id="work-mode-filter" style="min-width:130px;">
+        <option value="">All Modes</option>
+        <option value="remote">Remote</option>
+        <option value="hybrid">Hybrid</option>
+        <option value="onsite">Onsite</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="location-filter" style="margin-bottom:4px; font-size:0.8rem; font-weight:600;">Location</label>
+      <select id="location-filter" style="min-width:140px;">
+        <option value="">All Locations</option>
+        {% for loc in locations %}
+          <option value="{{ loc }}" {% if loc == location_filter %}selected{% endif %}>{{ loc }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label for="job-sort-select" style="margin-bottom:4px; font-size:0.8rem; font-weight:600;">Sort By</label>
+      <select id="job-sort-select" style="min-width:150px;">
+        <option value="score_desc">Highest Match %</option>
+        <option value="score_asc">Lowest Match %</option>
+        <option value="exp_asc">Least Experience</option>
+        <option value="exp_desc">Most Experience</option>
+        <option value="title_asc">Title (A-Z)</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="threshold-slider" style="margin-bottom:4px; font-size:0.8rem; font-weight:600;">
+        Min Match: <strong id="threshold-value" style="color:var(--primary);">{{ threshold }}%</strong>
+      </label>
+      <div style="height:42px; display:flex; align-items:center; padding: 0 4px;">
+        <input type="range" id="threshold-slider" min="0" max="100" step="5" value="{{ threshold }}" style="width:140px;">
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex; align-items:flex-end;">
+    <span class="badge badge-skill" id="matching-jobs-count" style="font-size:0.88rem; padding:8px 16px; border-radius:var(--radius-full);">
+      {{ jobs|length }} roles
+    </span>
+  </div>
+</div>
+
+<div id="job-list-container">
+  {% for job in jobs %}
+  {% set score_class = 'high' if job.score >= 70 else 'mid' if job.score >= 40 else 'low' %}
+  <div class="job-card job-card-item"
+       data-score="{{ job.score }}"
+       data-location="{{ job.location }}"
+       data-title="{{ job.title }}"
+       data-company="{{ job.company }}"
+       data-mode="{{ (job.job_type or 'Full-Time')|lower }}"
+       data-skills="{{ (job.required_skills + job.preferred_skills)|join(' ') }}"
+       data-experience="{{ job.min_experience }}">
+    
+    <div class="job-info">
+      <div class="flex-between" style="justify-content: flex-start; gap: 10px; margin-bottom: 4px; flex-wrap: wrap;">
+        <h3 class="job-title" style="margin:0;">
+          <a href="{{ url_for('job_detail', job_id=job.id) }}">{{ job.title }}</a>
+        </h3>
+        <span class="badge {{ 'badge-skill' if job.job_type == 'Remote' else 'badge-inactive' }}" style="font-size:0.75rem;">
+          {{ job.job_type or 'Full-Time' }}
+        </span>
+        <span class="badge badge-active" style="font-size:0.75rem;">
+          {{ job.openings_count or 1 }} opening{{ '' if job.openings_count == 1 else 's' }}
+        </span>
+      </div>
+
+      <div class="job-meta">
+        <span>🏢 <strong>{{ job.company }}</strong></span>
+        <span>📍 {{ job.location }}</span>
+        <span>⏳ {{ job.min_experience }}+ yrs exp</span>
+        <span class="text-muted" style="font-size:0.82rem;">• via {{ job.source or 'Naukri Feed' }}</span>
+      </div>
+
+      {% if job.match_reasons %}
+      <div style="margin: 8px 0; padding: 8px 12px; background: #f8fafc; border-radius: var(--radius-sm); border-left: 3px solid var(--primary); font-size: 0.85rem;">
+        <div style="color:var(--text-main); font-weight:600;">Match Highlights:</div>
+        <ul style="margin: 2px 0 0 16px; padding: 0; color: var(--text-body);">
+          {% for reason in job.match_reasons[:2] %}
+            <li>{{ reason }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      
+      <div class="skill-tags">
+        {% for s in job.matched_skills %}
+          <span class="badge badge-skill" title="Matched skill">✓ {{ s }}</span>
+        {% endfor %}
+        {% for s in job.missing_skills %}
+          <span class="badge badge-missing" title="Missing skill">missing: {{ s }}</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="score-visual">
+      <div class="score-ring">
+        <div class="score-bar-track">
+          <div class="score-bar-fill" data-score-pct="{{ job.score }}"></div>
+        </div>
+        <div class="score-num {{ score_class }}">{{ job.score }}%</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; width:100%; margin-top:8px;">
+        <a href="{{ url_for('job_detail', job_id=job.id) }}" class="btn btn-secondary btn-sm btn-block">
+          View Fit Breakdown
+        </a>
+        <button type="button" class="btn btn-primary btn-sm btn-block quick-apply-btn" 
+                data-job-id="{{ job.id }}" 
+                data-job-title="{{ job.title }}" 
+                data-company="{{ job.company }}">
+          ⚡ Quick Apply
+        </button>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="card empty-state" id="jobs-empty-state" style="display:none;">
+  <div class="icon">🔍</div>
+  <h3>No matching jobs found</h3>
+  <p class="text-muted">Try adjusting your filters, lowering match threshold, or selecting all work modes.</p>
+</div>
+{% endblock %}
