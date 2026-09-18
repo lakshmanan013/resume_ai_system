@@ -5,12 +5,29 @@
 <div class="flex-between" style="margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
   <div>
     <h2 class="mt-0">Live Job Listings</h2>
-    <p class="text-muted">Manage active openings and real-time feeds from Shine &amp; Naukri platforms.</p>
+    <p class="text-muted">Manage active openings and live feeds from the Adzuna Jobs API and direct employer portals.</p>
   </div>
-  <div style="display:flex; gap:10px; align-items:center;">
-    <button type="button" id="admin-sync-jobs-btn" class="btn btn-secondary btn-sm" style="background:#eef2ff; color:var(--primary-dark); border-color:var(--primary-border);">
-      ⚡ Live Sync Real-Time Jobs
-    </button>
+  <div style="display:flex; gap:12px; align-items:center;">
+    {% if adzuna_configured %}
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+        <button type="button" id="admin-sync-jobs-btn" class="btn btn-secondary btn-sm" style="background:#eef2ff; color:var(--primary-dark); border-color:var(--primary-border);">
+          ⚡ Sync Adzuna Jobs
+        </button>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="live-pulse-dot" style="width:7px; height:7px;"></span>
+          <span style="font-size:0.75rem; color:var(--text-muted);" id="admin-last-synced-text">
+            Auto-sync: 10s {% if last_synced %}(Last: {{ last_synced[11:19] }} UTC){% endif %}
+          </span>
+        </div>
+      </div>
+    {% else %}
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+        <button type="button" class="btn btn-secondary btn-sm" disabled style="opacity:0.65; cursor:not-allowed;" title="Configure ADZUNA_APP_ID and ADZUNA_APP_KEY in your environment to enable sync">
+          ⚡ Live sync not configured
+        </button>
+        <span style="font-size:0.74rem; color:#b45309;">Set ADZUNA_APP_ID &amp; KEY in env</span>
+      </div>
+    {% endif %}
     <a href="{{ url_for('admin_new_job') }}" class="btn btn-primary btn-sm">+ Create New Job</a>
   </div>
 </div>
@@ -82,7 +99,11 @@
             <span class="badge badge-active" style="font-size:0.78rem;">{{ j.openings_count }} slots</span>
           </td>
           <td>
-            <span style="font-size:0.82rem; color:var(--text-muted); font-weight:600;">{{ j.source }}</span>
+            {% if j.source|lower == 'adzuna' %}
+              <span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700; border:1px solid #bae6fd; font-size:0.78rem;">Adzuna</span>
+            {% else %}
+              <span class="badge" style="background:#f1f5f9; color:#475569; font-weight:600; font-size:0.78rem;">{{ 'Manual' if j.source|lower == 'manual' else j.source }}</span>
+            {% endif %}
           </td>
           <td>
             <div class="skill-tags">
@@ -101,7 +122,14 @@
           </td>
           <td style="white-space:nowrap; text-align:right;">
             <div class="table-actions">
-              <a href="{{ url_for('admin_edit_job', job_id=j.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+              {% if j.source|lower == 'adzuna' %}
+                <span class="badge" style="background:#f3f4f6; color:#6b7280; font-size:0.78rem; padding:4px 8px; border:1px solid #e5e7eb;" title="Adzuna-synced jobs are read-only to prevent sync overwrites">Read-Only</span>
+                {% if j.source_url %}
+                  <a href="{{ j.source_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="padding:4px 8px; font-size:0.78rem;" title="View external posting on Adzuna">↗ View</a>
+                {% endif %}
+              {% else %}
+                <a href="{{ url_for('admin_edit_job', job_id=j.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+              {% endif %}
               <button type="button" 
                       class="btn btn-secondary btn-sm ajax-toggle-job"
                       data-job-id="{{ j.id }}">
@@ -122,3 +150,4 @@
   </div>
 </div>
 {% endblock %}
+

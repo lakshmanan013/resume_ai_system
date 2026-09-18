@@ -12,7 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initAdminAjaxActions();
   initLiveJobSync();
   initQuickApply();
+  init10SecondJobAutoSync();
 });
+
 
 // ============================================================================
 // 1. Toast Notifications
@@ -173,6 +175,7 @@ function initDynamicJobFilters() {
   const thresholdVal = document.getElementById("threshold-value");
   const locationSelect = document.getElementById("location-filter");
   const modeSelect = document.getElementById("work-mode-filter");
+  const senioritySelect = document.getElementById("seniority-filter");
   const searchInput = document.getElementById("job-search-input");
   const sortSelect = document.getElementById("job-sort-select");
   const countBadge = document.getElementById("matching-jobs-count");
@@ -182,6 +185,7 @@ function initDynamicJobFilters() {
     const minThreshold = slider ? parseInt(slider.value, 10) : 0;
     const selectedLocation = locationSelect ? locationSelect.value.toLowerCase().trim() : "";
     const selectedMode = modeSelect ? modeSelect.value.toLowerCase().trim() : "";
+    const selectedSeniority = senioritySelect ? senioritySelect.value.toLowerCase().trim() : "";
     const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
     const sortBy = sortSelect ? sortSelect.value : "score_desc";
 
@@ -192,6 +196,7 @@ function initDynamicJobFilters() {
       const score = parseFloat(card.dataset.score || 0);
       const location = (card.dataset.location || "").toLowerCase();
       const mode = (card.dataset.mode || "").toLowerCase();
+      const seniority = (card.dataset.seniority || "").toLowerCase();
       const title = (card.dataset.title || "").toLowerCase();
       const company = (card.dataset.company || "").toLowerCase();
       const skills = (card.dataset.skills || "").toLowerCase();
@@ -199,9 +204,10 @@ function initDynamicJobFilters() {
       const matchesThreshold = score >= minThreshold;
       const matchesLocation = !selectedLocation || location.includes(selectedLocation) || (selectedLocation === "remote" && location.includes("remote"));
       const matchesMode = !selectedMode || mode.includes(selectedMode);
+      const matchesSeniority = !selectedSeniority || seniority.includes(selectedSeniority);
       const matchesSearch = !query || title.includes(query) || company.includes(query) || skills.includes(query) || location.includes(query);
 
-      if (matchesThreshold && matchesLocation && matchesMode && matchesSearch) {
+      if (matchesThreshold && matchesLocation && matchesMode && matchesSeniority && matchesSearch) {
         card.style.display = "flex";
         visibleCount++;
       } else {
@@ -246,6 +252,7 @@ function initDynamicJobFilters() {
 
   if (locationSelect) locationSelect.addEventListener("change", filterJobs);
   if (modeSelect) modeSelect.addEventListener("change", filterJobs);
+  if (senioritySelect) senioritySelect.addEventListener("change", filterJobs);
   if (searchInput) searchInput.addEventListener("input", filterJobs);
   if (sortSelect) sortSelect.addEventListener("change", filterJobs);
 
@@ -685,7 +692,7 @@ function initLiveJobSync() {
   syncBtn.addEventListener("click", async () => {
     try {
       syncBtn.disabled = true;
-      syncBtn.innerHTML = "⏳ Syncing Shine &amp; Naukri Live Feeds...";
+      syncBtn.innerHTML = "⏳ Syncing Adzuna Live Jobs...";
       
       const res = await fetch("/api/admin/jobs/sync", { method: "POST" });
       const data = await res.json();
@@ -696,12 +703,12 @@ function initLiveJobSync() {
       } else {
         showToast(data.error || "Sync failed", "error");
         syncBtn.disabled = false;
-        syncBtn.innerHTML = "⚡ Live Sync Real-Time Jobs";
+        syncBtn.innerHTML = "⚡ Sync Adzuna Jobs";
       }
     } catch (err) {
       showToast("Network error syncing jobs", "error");
       syncBtn.disabled = false;
-      syncBtn.innerHTML = "⚡ Live Sync Real-Time Jobs";
+      syncBtn.innerHTML = "⚡ Sync Adzuna Jobs";
     }
   });
 }
@@ -741,3 +748,198 @@ function initQuickApply() {
     });
   });
 }
+
+// ============================================================================
+// 9. Real-Time 10-Second Adzuna Auto-Sync & Dynamic Feed Ingestion
+// ============================================================================
+function init10SecondJobAutoSync() {
+  const syncBanner = document.getElementById("live-sync-banner");
+  const adminLastSyncText = document.getElementById("admin-last-synced-text");
+  const jobListContainer = document.getElementById("job-list-container");
+  const manualSyncBtn = document.getElementById("manual-sync-trigger-btn");
+  const clockLabel = document.getElementById("live-sync-clock");
+  const countBadge = document.getElementById("matching-jobs-count");
+
+  // Only run if user is on a page displaying live jobs
+  if (!syncBanner && !adminLastSyncText && !jobListContainer) {
+    return;
+  }
+
+  // Set of job IDs currently rendered on page
+  const knownJobIds = new Set();
+  if (jobListContainer) {
+    jobListContainer.querySelectorAll(".job-card-item").forEach((card) => {
+      const applyBtn = card.querySelector(".quick-apply-btn");
+      if (applyBtn && applyBtn.dataset.jobId) {
+        knownJobIds.add(String(applyBtn.dataset.jobId));
+      }
+    });
+  }
+
+  async function checkLiveUpdates(isManual = false) {
+    try {
+      if (clockLabel && isManual) {
+        clockLabel.textContent = "Syncing live with Adzuna...";
+      }
+
+      const url = isManual ? "/api/jobs/sync-now" : "/api/jobs/live-feed";
+      const method = isManual ? "POST" : "GET";
+      const res = await fetch(url, { method });
+      const data = await res.json();
+
+      if (!data.success) return;
+
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      if (clockLabel) {
+        clockLabel.textContent = `Auto-synced: ${timeStr} · Active: ${data.total_active_jobs || ''} jobs`;
+      }
+      if (adminLastSyncText) {
+        adminLastSyncText.textContent = `Auto-sync: 10s (Active: ${data.total_active_jobs || ''} · ${timeStr})`;
+      }
+
+      // Detect incoming jobs from latest active feed
+      const incomingJobs = data.latest_jobs || [];
+      const brandNewJobs = incomingJobs.filter((j) => j && j.id && !knownJobIds.has(String(j.id)));
+
+      if (brandNewJobs.length > 0) {
+        showToast(`⚡ ${brandNewJobs.length} new live jobs synced from Adzuna!`, "success");
+
+        if (jobListContainer) {
+          brandNewJobs.forEach((job) => {
+            knownJobIds.add(String(job.id));
+            const cardHtml = createLiveJobCardHtml(job);
+            jobListContainer.insertAdjacentHTML("afterbegin", cardHtml);
+          });
+
+          // Update total roles badge
+          if (countBadge) {
+            const currentTotal = jobListContainer.querySelectorAll(".job-card-item").length;
+            countBadge.textContent = `${currentTotal} roles`;
+          }
+
+          // Re-bind click events for newly inserted quick apply buttons
+          initQuickApply();
+        }
+
+        // If on admin jobs table, dynamically insert row
+        const adminTable = document.getElementById("jobs-table");
+        if (adminTable) {
+          const tbody = adminTable.querySelector("tbody");
+          if (tbody) {
+            brandNewJobs.forEach((job) => {
+              const rowHtml = createAdminJobRowHtml(job);
+              tbody.insertAdjacentHTML("afterbegin", rowHtml);
+            });
+            initAdminAjaxActions();
+          }
+        }
+      } else if (isManual) {
+        showToast("Adzuna sync check complete! Database is up to date.", "info");
+      }
+    } catch (err) {
+      console.warn("Live job auto-sync tick notice:", err);
+    }
+  }
+
+  // Bind manual sync button if present
+  if (manualSyncBtn) {
+    manualSyncBtn.addEventListener("click", () => {
+      manualSyncBtn.disabled = true;
+      manualSyncBtn.innerHTML = "⏳ Syncing...";
+      checkLiveUpdates(true).finally(() => {
+        manualSyncBtn.disabled = false;
+        manualSyncBtn.innerHTML = "⚡ Sync Now";
+      });
+    });
+  }
+
+  // Auto-sync poll every 10 seconds!
+  setInterval(() => {
+    checkLiveUpdates(false);
+  }, 10000);
+}
+
+function createLiveJobCardHtml(job) {
+  const reqSkills = job.required_skills || [];
+  const skillsBadges = reqSkills.slice(0, 5).map((s) => `<span class="badge badge-skill">${s}</span>`).join(" ");
+  const salaryText = job.salary_min ? `₹${Number(job.salary_min).toLocaleString()}` : "Competitive";
+
+  return `
+  <div class="job-card job-card-item is-new-live-job"
+       data-score="85"
+       data-location="${job.location || 'Remote'}"
+       data-title="${job.title || ''}"
+       data-company="${job.company || ''}"
+       data-mode="${(job.job_type || 'Full-Time').toLowerCase()}"
+       data-seniority="${(job.seniority_level || 'Mid-Level').toLowerCase()}"
+       data-skills="${reqSkills.join(' ')}"
+       data-experience="${job.min_experience || 0}">
+    <div class="job-info">
+      <div class="flex-between" style="justify-content: flex-start; gap: 10px; margin-bottom: 4px; flex-wrap: wrap;">
+        <h3 class="job-title" style="margin: 0;">
+          <a href="/jobs/${job.id}" style="color: inherit; text-decoration: none;">${job.title}</a>
+        </h3>
+        <span class="badge-live-new">⚡ NEW LIVE</span>
+        <span class="badge" style="background:#dbeafe; color:#1d4ed8; font-weight:700;">Adzuna</span>
+      </div>
+      <div class="job-company" style="font-weight: 600; color: var(--text-body); margin-bottom: 8px;">
+        ${job.company} &middot; <span class="text-muted">${job.location || 'Remote'}</span>
+      </div>
+      <div class="job-meta-row" style="display: flex; gap: 16px; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 12px; flex-wrap: wrap;">
+        <span>💼 ${job.job_type || 'Full-Time'}</span>
+        <span>📈 ${job.seniority_level || 'Mid-Level'}</span>
+        <span>⏳ ${job.min_experience || 0}+ yrs exp</span>
+        <span>💰 ${salaryText}</span>
+      </div>
+      <div class="skill-chips-row" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px;">
+        ${skillsBadges}
+      </div>
+    </div>
+    <div class="job-actions" style="display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; gap: 12px;">
+      <div class="score-pill score-high" style="font-weight: 800; font-size: 1.05rem; padding: 6px 14px; border-radius: var(--radius-full); background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;">
+        ⚡ Live Opening
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <a href="/jobs/${job.id}" class="btn btn-secondary btn-sm">View Details</a>
+        <button type="button" class="btn btn-primary btn-sm quick-apply-btn"
+                data-job-id="${job.id}"
+                data-job-title="${job.title}"
+                data-company="${job.company}">
+          ⚡ Quick Apply
+        </button>
+      </div>
+    </div>
+  </div>
+  `;
+}
+
+function createAdminJobRowHtml(job) {
+  const reqSkills = (job.required_skills || []).slice(0, 3).map((s) => `<span class="badge badge-skill">${s}</span>`).join(" ");
+  const viewLink = job.source_url ? `<a href="${job.source_url}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="padding:4px 8px; font-size:0.78rem;">↗ View</a>` : "";
+
+  return `
+  <tr style="background: rgba(16, 185, 129, 0.06); animation: live-card-slide-in 0.5s ease;">
+    <td>
+      <div style="font-weight:600; color:var(--text-main);">${job.title} <span class="badge-live-new" style="font-size:0.68rem; padding:2px 6px;">NEW</span></div>
+      <div style="font-size:0.8rem; color:var(--text-muted);">${job.company} &middot; ${job.location || 'Remote'}</div>
+    </td>
+    <td><span class="badge badge-active">Active</span></td>
+    <td><span class="badge" style="background:#dbeafe; color:#1d4ed8; font-weight:700;">Adzuna</span></td>
+    <td><span class="badge badge-skill">${job.seniority_level || 'Mid-Level'}</span></td>
+    <td>${job.min_experience || 0} yrs</td>
+    <td>${reqSkills}</td>
+    <td><span class="badge" style="background:#ecfdf5; color:#059669; font-weight:700;">Just now</span></td>
+    <td style="white-space:nowrap; text-align:right;">
+      <div class="table-actions">
+        <span class="badge" style="background:#f3f4f6; color:#6b7280; font-size:0.78rem; padding:4px 8px; border:1px solid #e5e7eb;">Read-Only</span>
+        ${viewLink}
+        <button type="button" class="btn btn-secondary btn-sm ajax-toggle-job" data-job-id="${job.id}">Hide</button>
+        <button type="button" class="btn btn-danger btn-sm ajax-delete-job" data-job-id="${job.id}" data-job-title="${job.title}">Delete</button>
+      </div>
+    </td>
+  </tr>
+  `;
+}
+

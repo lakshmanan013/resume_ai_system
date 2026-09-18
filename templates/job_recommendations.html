@@ -13,6 +13,21 @@
   </div>
 </div>
 
+<!-- Live Adzuna 10-Second Auto-Sync Status HUD -->
+<div class="live-sync-banner" id="live-sync-banner">
+  <div class="live-sync-left">
+    <span class="live-pulse-dot" title="Live background syncing active"></span>
+    <span class="live-sync-title">LIVE ADZUNA SYNC ACTIVE</span>
+    <span class="live-sync-badge">Auto-sync: 10s</span>
+  </div>
+  <div class="live-sync-right">
+    <span class="live-sync-clock" id="live-sync-clock">Auto-refreshing every 10s...</span>
+    <button type="button" id="manual-sync-trigger-btn" class="btn btn-secondary btn-sm live-sync-now-btn" title="Trigger instant live sync from Adzuna">
+      ⚡ Sync Now
+    </button>
+  </div>
+</div>
+
 <div class="toolbar-card">
   <div class="toolbar-group" style="flex: 1; min-width: 220px;">
     <div style="width: 100%;">
@@ -27,7 +42,7 @@
   <div class="toolbar-group">
     <div>
       <label for="work-mode-filter" style="margin-bottom:4px; font-size:0.8rem; font-weight:600;">Work Mode</label>
-      <select id="work-mode-filter" style="min-width:130px;">
+      <select id="work-mode-filter" style="min-width:120px;">
         <option value="">All Modes</option>
         <option value="remote">Remote</option>
         <option value="hybrid">Hybrid</option>
@@ -36,8 +51,18 @@
     </div>
 
     <div>
+      <label for="seniority-filter" style="margin-bottom:4px; font-size:0.8rem; font-weight:600;">Seniority</label>
+      <select id="seniority-filter" style="min-width:130px;">
+        <option value="">All Seniorities</option>
+        {% for sen in seniority_levels %}
+          <option value="{{ sen|lower }}" {% if seniority_filter|lower == sen|lower %}selected{% endif %}>{{ sen }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
       <label for="location-filter" style="margin-bottom:4px; font-size:0.8rem; font-weight:600;">Location</label>
-      <select id="location-filter" style="min-width:140px;">
+      <select id="location-filter" style="min-width:130px;">
         <option value="">All Locations</option>
         {% for loc in locations %}
           <option value="{{ loc }}" {% if loc == location_filter %}selected{% endif %}>{{ loc }}</option>
@@ -82,6 +107,7 @@
        data-title="{{ job.title }}"
        data-company="{{ job.company }}"
        data-mode="{{ (job.job_type or 'Full-Time')|lower }}"
+       data-seniority="{{ (job.seniority_level or 'Mid-Level')|lower }}"
        data-skills="{{ (job.required_skills + job.preferred_skills)|join(' ') }}"
        data-experience="{{ job.min_experience }}">
     
@@ -105,9 +131,14 @@
         <span class="text-muted" style="font-size:0.82rem;">• via {{ job.source or 'Naukri Feed' }}</span>
       </div>
 
-      {% if job.match_reasons %}
-      <div style="margin: 8px 0; padding: 8px 12px; background: #f8fafc; border-radius: var(--radius-sm); border-left: 3px solid var(--primary); font-size: 0.85rem;">
-        <div style="color:var(--text-main); font-weight:600;">Match Highlights:</div>
+      {% if job.explanation %}
+      <div style="margin: 8px 0; padding: 10px 14px; background: rgba(10, 14, 32, 0.7); border-radius: var(--radius-sm); border: 1px solid rgba(59, 130, 246, 0.25); border-left: 3px solid var(--accent-cyan); font-size: 0.85rem;">
+        <div style="color:#ffffff; font-weight:600; margin-bottom: 2px;">AI Match Rationale:</div>
+        <div style="color:var(--text-body); line-height: 1.4;">{{ job.explanation }}</div>
+      </div>
+      {% elif job.match_reasons %}
+      <div style="margin: 8px 0; padding: 8px 14px; background: rgba(10, 14, 32, 0.7); border-radius: var(--radius-sm); border: 1px solid rgba(59, 130, 246, 0.25); border-left: 3px solid var(--accent-cyan); font-size: 0.85rem;">
+        <div style="color:#ffffff; font-weight:600;">Match Highlights:</div>
         <ul style="margin: 2px 0 0 16px; padding: 0; color: var(--text-body);">
           {% for reason in job.match_reasons[:2] %}
             <li>{{ reason }}</li>

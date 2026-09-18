@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}Verify Extracted Resume Details{% endblock %}
+{% block content %}
+<div class="header-action-row" style="margin-bottom: 24px;">
+  <div>
+    <h1 class="page-title" style="margin: 0;">Confirm Extracted Profile</h1>
+    <p class="text-muted" style="margin-top: 4px;">
+      <strong>Human-in-the-Loop AI Verification:</strong> Please review and adjust the extracted details below before running the job recommendation engine.
+    </p>
+  </div>
+  <div>
+    <a href="{{ url_for('upload_resume') }}" class="btn btn-secondary">Upload Different Resume</a>
+  </div>
+</div>
+
+<form method="POST" action="{{ url_for('confirm_resume_view', resume_id=resume.id) }}" id="confirmResumeForm">
+  <div class="grid grid-2" style="gap: 24px;">
+    
+    <!-- Left Column: Personal, Education & Experience -->
+    <div class="card">
+      <h3 style="margin-top:0; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 10px; color: #ffffff;">
+        1. Contact & Candidate Info
+      </h3>
+      
+      <div class="form-group">
+        <label for="name">Candidate Full Name</label>
+        <input type="text" id="name" name="name" value="{{ resume.parsed_name or resume.name or '' }}" required>
+      </div>
+
+      <div class="grid grid-2" style="gap: 16px;">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" value="{{ resume.email or '' }}">
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input type="text" id="phone" name="phone" value="{{ resume.phone or '' }}">
+        </div>
+      </div>
+
+      <h3 style="margin-top:24px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 10px; color: #ffffff;">
+        2. Experience & Education
+      </h3>
+
+      <div class="form-group">
+        <label for="experience_years">Calculated Total Experience (Years)</label>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <input type="number" step="0.1" min="0" max="50" id="experience_years" name="experience_years" 
+                 value="{{ resume.experience_years or 0 }}" style="max-width:140px;" required>
+          <span class="text-muted" style="font-size:0.85rem;">Derived from chronological work dates</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Detected Education</label>
+        {% if resume.education %}
+          <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem; color: #cbd5e1;">
+            {% for edu in resume.education %}
+              <li>{{ edu }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted" style="font-size:0.85rem; margin:0;">No explicit degree section detected.</p>
+        {% endif %}
+      </div>
+
+      {% if resume.parsed_json and resume.parsed_json.work_history %}
+      <div class="form-group">
+        <label>Identified Work History Items</label>
+        <div style="background: rgba(10, 14, 32, 0.7); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 10px; padding: 12px; max-height: 160px; overflow-y: auto; font-size: 0.85rem;">
+          {% for item in resume.parsed_json.work_history %}
+            <div style="margin-bottom:6px; padding-bottom:6px; border-bottom: 1px dashed rgba(255, 255, 255, 0.1);">
+              <strong style="color: #ffffff;">{{ item.organization }}</strong>: <span style="color: #cbd5e1;">{{ item.title_or_line }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Right Column: Skills Verification -->
+    <div class="card">
+      <h3 style="margin-top:0; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 10px; color: #ffffff;">
+        3. Technical & Professional Skills
+      </h3>
+      <p class="text-muted" style="font-size:0.85rem;">
+        Click <strong>&times;</strong> to remove any misclassified skill, or type in the box to add skills.
+      </p>
+
+      <!-- Interactive Skill Tag Container -->
+      <div id="skillsTagBox" style="min-height: 120px; max-height: 220px; overflow-y: auto; padding: 12px; background: rgba(10, 14, 32, 0.7); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 12px; margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start;">
+        {% for skill in resume.skills %}
+          <span class="badge badge-skill" data-skill="{{ skill }}" style="display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; padding:6px 12px; background: rgba(15, 23, 42, 0.8); color:#cbd5e1; border:1px solid rgba(56, 189, 248, 0.25); border-radius:9999px;">
+            <span>{{ skill }}</span>
+            <button type="button" class="remove-skill-btn" style="background:none; border:none; color:#f87171; cursor:pointer; font-weight:bold; padding:0 2px;">&times;</button>
+          </span>
+        {% endfor %}
+      </div>
+
+      <!-- Hidden comma-separated input submitted with form -->
+      <input type="hidden" id="skillsInput" name="skills" value="{{ resume.skills | join(',') }}">
+
+      <!-- Add New Skill Input -->
+      <div style="display: flex; gap: 8px; margin-bottom: 24px;">
+        <input type="text" id="newSkillInput" placeholder="Add another skill (e.g. Docker, Python, AWS)..." style="flex:1;">
+        <button type="button" id="addSkillBtn" class="btn btn-secondary">Add</button>
+      </div>
+
+      <div style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.25); border-radius: 12px; padding: 18px; margin-top: auto;">
+        <h4 style="margin: 0 0 8px 0; color: #86efac;">Ready for AI Matching?</h4>
+        <p style="margin: 0 0 16px 0; font-size: 0.85rem; color: #cbd5e1;">
+          Once confirmed, our dual ML matching engine will evaluate semantic sentence embeddings and exact skill coverage across all open job postings.
+        </p>
+        <button type="submit" class="btn btn-primary btn-block" style="font-size: 1rem; padding: 13px;">
+          Confirm Details &amp; Generate Recommendations &rarr;
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</form>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const box = document.getElementById("skillsTagBox");
+  const hiddenInput = document.getElementById("skillsInput");
+  const newSkillInput = document.getElementById("newSkillInput");
+  const addSkillBtn = document.getElementById("addSkillBtn");
+
+  function getSkills() {
+    return Array.from(box.querySelectorAll(".badge-skill")).map(el => el.getAttribute("data-skill").trim().toLowerCase());
+  }
+
+  function updateHiddenInput() {
+    hiddenInput.value = getSkills().join(",");
+  }
+
+  box.addEventListener("click", (e) => {
+    if (e.target.classList.contains("remove-skill-btn")) {
+      const badge = e.target.closest(".badge-skill");
+      badge.remove();
+      updateHiddenInput();
+    }
+  });
+
+  function addSkill() {
+    const val = newSkillInput.value.trim().toLowerCase();
+    if (!val) return;
+    const current = getSkills();
+    if (!current.includes(val)) {
+      const span = document.createElement("span");
+      span.className = "badge badge-skill";
+      span.setAttribute("data-skill", val);
+      span.style.cssText = "display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; padding:6px 10px; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; border-radius:16px;";
+      span.innerHTML = `<span>${val}</span><button type="button" class="remove-skill-btn" style="background:none; border:none; color:#dc2626; cursor:pointer; font-weight:bold; padding:0 2px;">&times;</button>`;
+      box.appendChild(span);
+      updateHiddenInput();
+    }
+    newSkillInput.value = "";
+    newSkillInput.focus();
+  }
+
+  addSkillBtn.addEventListener("click", addSkill);
+  newSkillInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addSkill();
+    }
+  });
+});
+</script>
+{% endblock %}

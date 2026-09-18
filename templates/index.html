@@ -1,36 +1,348 @@
 {% extends "base.html" %}
-{% block title %}AI Resume Matching &amp; Recommendations{% endblock %}
-{% block content %}
-<div class="hero">
-  <div class="hero-badge">⚡ Instant AI Skill Matching &amp; Gap Analysis</div>
-  <h1>Find the right job, matched to your resume in real time.</h1>
-  <p>Upload your resume and let our explainable AI engine analyze your skill set, highlight skill gaps, and dynamically rank matching roles to help you land your next opportunity.</p>
-  <div class="actions">
+{% block title %}Resume AI — Find the Right Job in Real Time{% endblock %}
+{% block body_class %}cyber-landing-body{% endblock %}
+
+{% block header %}
+<header class="cyber-nav">
+  <a href="{{ url_for('index') }}" class="cyber-brand">
+    <div class="cyber-logo-icon">
+      <span class="cyber-sparkle">✦</span>
+    </div>
+    <div class="cyber-brand-text">
+      <span class="cyber-brand-name">Resume AI</span>
+      <span class="cyber-brand-sub">Smarter Resumes. Brighter Careers.</span>
+    </div>
+  </a>
+
+  <div class="cyber-nav-right">
+    <button type="button" class="cyber-search-btn" id="cyber-search-trigger" title="Quick Search Jobs &amp; Skills" aria-label="Search">
+      🔍
+    </button>
     {% if current_user %}
-      <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Go to Dashboard &rarr;</a>
-      <a href="{{ url_for('job_recommendations') }}" class="btn btn-secondary">Explore Matches</a>
+      {% if current_user['role'] == 'admin' %}
+        <a href="{{ url_for('admin_dashboard') }}" class="cyber-login-btn">Admin Portal</a>
+      {% else %}
+        <a href="{{ url_for('dashboard') }}" class="cyber-login-btn">Dashboard</a>
+      {% endif %}
+      <a href="{{ url_for('logout') }}" class="cyber-nav-cta">Logout &rarr;</a>
     {% else %}
-      <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started Free &rarr;</a>
-      <a href="{{ url_for('login') }}" class="btn btn-secondary">Sign In</a>
+      <a href="{{ url_for('login') }}" class="cyber-login-btn">Log In</a>
+      <a href="{{ url_for('register') }}" class="cyber-nav-cta">Get Started &rarr;</a>
     {% endif %}
+  </div>
+</header>
+{% endblock %}
+
+{% block main %}
+<!-- Atmospheric Glows & Grid Floor -->
+<div class="cyber-background-fx">
+  <div class="cyber-glow-magenta"></div>
+  <div class="cyber-glow-cyan"></div>
+  <div class="cyber-grid-floor"></div>
+  <div class="cyber-circuit-trace"></div>
+</div>
+
+<!-- Main Hero Section -->
+<section class="cyber-hero-container">
+  <!-- Hero Left Column -->
+  <div class="cyber-hero-left">
+    <div class="cyber-badge">
+      <span class="cyber-badge-dot"></span>
+      <span class="cyber-badge-text">AI POWERED CAREER ENGINE</span>
+    </div>
+
+    <h1 class="cyber-hero-title">
+      Find the right job,<br>
+      matched to your<br>
+      <span class="cyber-text-gradient">resume in real time.</span>
+    </h1>
+
+    <p class="cyber-hero-subtitle">
+      Upload your resume and let our AI analyze your skills, highlight
+      skill gaps, and match you with the best job opportunities
+      instantly.
+    </p>
+
+    <div class="cyber-cta-group">
+      {% if current_user %}
+        <a href="{{ url_for('upload_resume') }}" class="cyber-btn-primary">Analyze Resume Now &rarr;</a>
+      {% else %}
+        <a href="{{ url_for('register') }}" class="cyber-btn-primary">Get Started Free &rarr;</a>
+      {% endif %}
+      <button type="button" class="cyber-btn-secondary" id="open-demo-modal-btn">
+        <span class="cyber-play-icon">&#9658;</span>
+        <span>Watch Demo</span>
+      </button>
+    </div>
+
+    <div class="cyber-trust-row">
+      <div class="cyber-trust-item">
+        <span class="cyber-trust-icon">&#9889;</span>
+        <span>No credit card required</span>
+      </div>
+      <div class="cyber-trust-item">
+        <span class="cyber-trust-icon">&#128737;</span>
+        <span>Private &amp; secure</span>
+      </div>
+      <div class="cyber-trust-item">
+        <span class="cyber-trust-icon">&#128101;</span>
+        <span>Instant results</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Right Column (3D Hologram Pedestal & Cards) -->
+  <div class="cyber-hero-right">
+    <div class="cyber-stage-container">
+      <!-- HUD Vertical Labels -->
+      <div class="cyber-hud-tags">
+        ANALYZE<br>
+        MATCH<br>
+        GROW<br>
+        SUCCEED
+      </div>
+
+      <!-- Concentric Glowing Pedestal Rings -->
+      <div class="cyber-pedestal-wrap">
+        <div class="cyber-pedestal-beam"></div>
+        <div class="cyber-pedestal-outer"></div>
+        <div class="cyber-pedestal-inner"></div>
+      </div>
+
+      <!-- Holographic 3D Resume Tablet -->
+      <div class="cyber-tablet-wrap">
+        <div class="cyber-resume-card">
+          <div class="cyber-resume-header">YOUR RESUME</div>
+          
+          <div class="cyber-resume-profile">
+            <div class="cyber-avatar-box">&#128100;</div>
+            <div class="cyber-profile-lines">
+              <div class="cyber-skel-line w-80"></div>
+              <div class="cyber-skel-line w-60"></div>
+            </div>
+          </div>
+
+          <div class="cyber-resume-section">
+            <div class="cyber-sec-title">
+              <span class="cyber-sec-icon">&#127891;</span>
+              <span>Education</span>
+            </div>
+            <div class="cyber-skel-line w-90"></div>
+            <div class="cyber-skel-line w-70"></div>
+          </div>
+
+          <div class="cyber-resume-section">
+            <div class="cyber-sec-title">
+              <span class="cyber-sec-icon">&#128188;</span>
+              <span>Experience</span>
+            </div>
+            <div class="cyber-skel-line w-90"></div>
+            <div class="cyber-skel-line w-80"></div>
+          </div>
+
+          <div class="cyber-resume-section">
+            <div class="cyber-sec-title">
+              <span class="cyber-sec-icon">&#9881;</span>
+              <span>Skills</span>
+            </div>
+            <div class="cyber-skel-line w-70"></div>
+            <div class="cyber-skel-line w-50"></div>
+          </div>
+
+          <!-- Attached Glowing AI Microprocessor Chip -->
+          <div class="cyber-ai-chip">
+            <span class="cyber-ai-text">AI</span>
+          </div>
+        </div>
+
+        <!-- Glowing Circuit Connector Traces -->
+        <svg class="cyber-connector-svg" viewBox="0 0 140 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Trace to Top Card (Cyan) -->
+          <path d="M 0 160 C 50 160, 60 50, 140 50" stroke="#00f0ff" stroke-width="2.5" stroke-linecap="round" opacity="0.8" />
+          <circle cx="140" cy="50" r="3.5" fill="#00f0ff" />
+          
+          <!-- Trace to Middle Card (Magenta) -->
+          <path d="M 0 160 C 40 160, 50 160, 140 160" stroke="#d946ef" stroke-width="2.5" stroke-linecap="round" opacity="0.8" />
+          <circle cx="140" cy="160" r="3.5" fill="#d946ef" />
+          
+          <!-- Trace to Bottom Card (Electric Blue) -->
+          <path d="M 0 160 C 50 160, 60 270, 140 270" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" opacity="0.8" />
+          <circle cx="140" cy="270" r="3.5" fill="#38bdf8" />
+        </svg>
+
+        <!-- Floating Holographic Metric Stat Cards -->
+        <div class="cyber-stats-stack">
+          <!-- Card 1: 94% Skill Match (Cyan) -->
+          <div class="cyber-stat-card stat-match">
+            <div class="cyber-stat-meta">
+              <span class="cyber-stat-val val-match">94%</span>
+              <span class="cyber-stat-lbl">SKILL MATCH</span>
+            </div>
+            <div class="cyber-donut-box">
+              <svg viewBox="0 0 36 36" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(0, 240, 255, 0.2)" stroke-width="3.5" />
+                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#00f0ff" stroke-width="3.5" stroke-dasharray="100, 100" stroke-dashoffset="6" stroke-linecap="round" style="filter: drop-shadow(0 0 4px #00f0ff);" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Card 2: 3 Skill Gaps (Magenta) -->
+          <div class="cyber-stat-card stat-gaps">
+            <div class="cyber-stat-meta">
+              <span class="cyber-stat-val val-gaps">3</span>
+              <span class="cyber-stat-lbl">SKILL GAPS</span>
+            </div>
+            <div class="cyber-bars-box">
+              <div class="cyber-bar b1"></div>
+              <div class="cyber-bar b2"></div>
+              <div class="cyber-bar b3"></div>
+            </div>
+          </div>
+
+          <!-- Card 3: 12+ Job Opportunities (Blue/Cyan) -->
+          <div class="cyber-stat-card stat-jobs">
+            <div class="cyber-stat-meta">
+              <span class="cyber-stat-val val-jobs">12+</span>
+              <span class="cyber-stat-lbl">JOB OPPORTUNITIES</span>
+            </div>
+            <div class="cyber-briefcase-box">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Live Demo Modal -->
+<div class="cyber-modal-backdrop" id="cyber-demo-modal">
+  <div class="cyber-modal-dialog">
+    <button type="button" class="cyber-modal-close" id="close-demo-modal-btn">&times;</button>
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+      <span class="cyber-sparkle" style="font-size:1.5rem;">✦</span>
+      <h3 style="margin:0; font-size:1.4rem; color:#ffffff;">AI Neural Matching Simulation</h3>
+    </div>
+    <p style="color:#94a3b8; font-size:0.92rem; margin-bottom:24px;">
+      Watch how Resume AI processes free-text candidate profiles, canonicalizes skills against 350+ benchmarks, and performs vector cosine matching.
+    </p>
+
+    <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(56,189,248,0.3); border-radius:14px; padding:18px; margin-bottom:20px;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.85rem;">
+        <span style="color:#38bdf8; font-weight:700;">Scanning Resume: Software Engineer</span>
+        <span style="color:#00f0ff; font-family:monospace;" id="demo-sim-percent">100% Analyzed</span>
+      </div>
+      <div style="background:rgba(255,255,255,0.08); border-radius:6px; height:8px; overflow:hidden; margin-bottom:16px;">
+        <div style="background:linear-gradient(90deg, #38bdf8, #d946ef); height:100%; width:100%; border-radius:6px; box-shadow:0 0 10px #d946ef;"></div>
+      </div>
+
+      <div style="font-size:0.8rem; font-weight:700; color:#94a3b8; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.08em;">Extracted Technical Skills</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+        <span class="badge" style="background:#0284c7; color:#ffffff; font-size:0.78rem;">Python</span>
+        <span class="badge" style="background:#0284c7; color:#ffffff; font-size:0.78rem;">Flask</span>
+        <span class="badge" style="background:#0284c7; color:#ffffff; font-size:0.78rem;">Docker</span>
+        <span class="badge" style="background:#0284c7; color:#ffffff; font-size:0.78rem;">PostgreSQL</span>
+        <span class="badge" style="background:#0284c7; color:#ffffff; font-size:0.78rem;">Git</span>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; padding-top:12px; border-top:1px solid rgba(255,255,255,0.08);">
+        <div>
+          <div style="font-size:0.75rem; color:#94a3b8;">Matched Vacancy</div>
+          <div style="font-size:0.95rem; font-weight:700; color:#ffffff;">Senior Python Developer (Adzuna Live Feed)</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:0.75rem; color:#94a3b8;">Neural Match</div>
+          <div style="font-size:1.5rem; font-weight:850; color:#00f0ff; text-shadow:0 0 12px #00f0ff;">94% Match</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:12px; justify-content:flex-end;">
+      <button type="button" class="btn btn-secondary btn-sm" id="close-demo-modal-secondary">Close</button>
+      <a href="{{ url_for('register') if not current_user else url_for('upload_resume') }}" class="cyber-btn-primary" style="padding:10px 22px; font-size:0.88rem;">
+        Try With Your Resume &rarr;
+      </a>
+    </div>
   </div>
 </div>
 
-<div class="feature-grid">
-  <div class="feature-card">
-    <div class="feature-icon-wrapper">📄</div>
-    <h3>Instant Resume Parsing</h3>
-    <p class="text-muted">Extract contact information, education, experience, and categorized technical skills instantly from PDF and DOCX files.</p>
-  </div>
-  <div class="feature-card">
-    <div class="feature-icon-wrapper">🎯</div>
-    <h3>Real-Time Skill Matching</h3>
-    <p class="text-muted">Dynamic weighted percentage match scores calculated across required and preferred skills with interactive threshold filtering.</p>
-  </div>
-  <div class="feature-card">
-    <div class="feature-icon-wrapper">💡</div>
-    <h3>Interactive Skill Simulator</h3>
-    <p class="text-muted">Simulate adding new skills or certifications on the fly to see real-time score boosts and personalized growth pathways.</p>
+<!-- Quick Search Modal -->
+<div class="cyber-search-modal" id="cyber-search-modal">
+  <div class="cyber-search-box">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <span style="font-size:0.85rem; font-weight:700; color:#38bdf8; letter-spacing:0.08em; text-transform:uppercase;">Quick Job &amp; Skill Search</span>
+      <button type="button" id="close-search-modal-btn" style="background:transparent; border:none; color:#94a3b8; font-size:1.2rem; cursor:pointer;">&times;</button>
+    </div>
+    <form action="{{ url_for('job_recommendations') }}" method="GET">
+      <div class="cyber-search-input-wrap">
+        <span>🔍</span>
+        <input type="text" name="q" class="cyber-search-input" placeholder="Search roles, skills, e.g. Python, React, Cloud..." autofocus>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px;">
+        <span style="font-size:0.75rem; color:#64748b;">Press Enter to search live openings</span>
+        <button type="submit" class="cyber-btn-primary" style="padding:8px 18px; font-size:0.84rem;">Search Jobs &rarr;</button>
+      </div>
+    </form>
   </div>
 </div>
 {% endblock %}
+
+{% block footer %}
+<footer class="cyber-footer-bar">
+  <div class="cyber-footer-left">
+    <span class="cyber-dash">&mdash;</span>
+    <span style="color:#e2e8f0; font-weight:600;">BUILD A BETTER TOMORROW</span>
+  </div>
+  <div class="cyber-footer-midline"></div>
+  <div class="cyber-footer-right">
+    RESUME AI // YOUR SKILLS. HIGHER OPPORTUNITIES.
+  </div>
+</footer>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Interactive Modal Handlers for Watch Demo
+  const demoBtn = document.getElementById("open-demo-modal-btn");
+  const demoModal = document.getElementById("cyber-demo-modal");
+  const closeDemoBtn = document.getElementById("close-demo-modal-btn");
+  const closeDemoSecondary = document.getElementById("close-demo-modal-secondary");
+
+  function openDemo() {
+    if (demoModal) demoModal.classList.add("active");
+  }
+  function closeDemo() {
+    if (demoModal) demoModal.classList.remove("active");
+  }
+
+  if (demoBtn) demoBtn.addEventListener("click", openDemo);
+  if (closeDemoBtn) closeDemoBtn.addEventListener("click", closeDemo);
+  if (closeDemoSecondary) closeDemoSecondary.addEventListener("click", closeDemo);
+  if (demoModal) {
+    demoModal.addEventListener("click", (e) => {
+      if (e.target === demoModal) closeDemo();
+    });
+  }
+
+  // Quick Search Handlers
+  const searchTrigger = document.getElementById("cyber-search-trigger");
+  const searchModal = document.getElementById("cyber-search-modal");
+  const closeSearchBtn = document.getElementById("close-search-modal-btn");
+
+  if (searchTrigger && searchModal) {
+    searchTrigger.addEventListener("click", () => searchModal.classList.add("active"));
+  }
+  if (closeSearchBtn && searchModal) {
+    closeSearchBtn.addEventListener("click", () => searchModal.classList.remove("active"));
+  }
+  if (searchModal) {
+    searchModal.addEventListener("click", (e) => {
+      if (e.target === searchModal) searchModal.classList.remove("active");
+    });
+  }
+</script>
+{% endblock %}
+

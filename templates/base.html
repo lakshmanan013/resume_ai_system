@@ -3,36 +3,99 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Resume AI{% endblock %} · Resume AI System</title>
+  <title>{% block title %}Resume AI{% endblock %} · Smarter Resumes. Brighter Careers.</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   {% block extra_head %}{% endblock %}
 </head>
-<body>
-  <header class="navbar">
-    <a href="{{ url_for('index') }}" class="brand">
-      <span class="logo-icon">✦</span>
-      <span>Resume AI</span>
-    </a>
-    <nav>
-      {% if current_user %}
-        {% if current_user['role'] == 'admin' %}
-          <a href="{{ url_for('admin_dashboard') }}">Admin Portal</a>
-        {% else %}
-          <a href="{{ url_for('dashboard') }}">Dashboard</a>
-          <a href="{{ url_for('upload_resume') }}">Resume</a>
-          <a href="{{ url_for('job_recommendations') }}">Job Matches</a>
-        {% endif %}
-        <span class="user-pill">👤 {{ current_user['name'] }}</span>
-        <a href="{{ url_for('logout') }}">Logout</a>
-      {% else %}
-        <a href="{{ url_for('login') }}">Log In</a>
-        <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Get Started</a>
-      {% endif %}
-    </nav>
-  </header>
+<body class="{% block body_class %}{% endblock %}">
+  <!-- Atmospheric Cyber Background Glows & Dot Grid -->
+  <div class="cyber-bg-atmosphere" aria-hidden="true">
+    <div class="cyber-dot-grid"></div>
+    <div class="cyber-radial-glow top-right"></div>
+    <div class="cyber-radial-glow center-left"></div>
+    <div class="cyber-radial-glow bottom-center"></div>
+  </div>
 
+  {% block header %}
+  <!-- Precision Cyber Navigation Bar -->
+  <header class="cyber-navbar">
+    <div class="cyber-navbar-inner">
+      <a href="{{ url_for('index') }}" class="cyber-brand">
+        <div class="cyber-logo-icon">
+          <span class="cyber-sparkle">&#10022;</span>
+        </div>
+        <div class="cyber-brand-text">
+          <span class="cyber-brand-name">Resume <span class="accent-ai">AI</span></span>
+          <span class="cyber-brand-sub">Smarter Resumes. Brighter Careers.</span>
+        </div>
+      </a>
+
+      <nav class="cyber-nav-links">
+        {% if current_user %}
+          {% if current_user['role'] == 'admin' %}
+            <a href="{{ url_for('admin_dashboard') }}" class="cyber-nav-pill {% if request.endpoint and 'admin' in request.endpoint %}active{% endif %}">
+              <span class="nav-icon">🛡</span> Admin Portal
+            </a>
+          {% else %}
+            <a href="{{ url_for('dashboard') }}" class="cyber-nav-pill {% if request.endpoint == 'dashboard' %}active{% endif %}">
+              <span class="nav-icon">🏠</span> Dashboard
+            </a>
+            <a href="{{ url_for('upload_resume') }}" class="cyber-nav-pill {% if request.endpoint in ['upload_resume', 'confirm_resume_view', 'resume_analysis'] %}active{% endif %}">
+              <span class="nav-icon">📄</span> Resume
+            </a>
+            <a href="{{ url_for('job_recommendations') }}" class="cyber-nav-pill {% if request.endpoint in ['job_recommendations', 'job_detail'] %}active{% endif %}">
+              <span class="nav-icon">💼</span> Job Matches
+            </a>
+          {% endif %}
+        {% else %}
+          <a href="{{ url_for('index') }}" class="cyber-nav-pill {% if request.endpoint == 'index' %}active{% endif %}">Home</a>
+          <a href="{{ url_for('login') }}" class="cyber-nav-pill {% if request.endpoint == 'login' %}active{% endif %}">Log In</a>
+          <a href="{{ url_for('register') }}" class="cyber-nav-pill {% if request.endpoint == 'register' %}active{% endif %}">Get Started</a>
+        {% endif %}
+      </nav>
+
+      <div class="cyber-nav-actions">
+        {% if current_user %}
+          <div class="cyber-user-menu-wrap">
+            <button type="button" class="cyber-user-pill" id="userMenuBtn" aria-label="User profile menu">
+              <span class="user-avatar-mini">👤</span>
+              <span class="user-name-text">{{ current_user['name'] }}</span>
+              <span class="user-chevron">⌵</span>
+            </button>
+            <div class="cyber-user-dropdown" id="userDropdown">
+              <div class="dropdown-header">
+                <strong>{{ current_user['name'] }}</strong>
+                <small>{{ current_user['email'] }}</small>
+              </div>
+              <div class="dropdown-divider"></div>
+              <a href="{{ url_for('dashboard') }}" class="dropdown-item">🏠 Candidate Dashboard</a>
+              <a href="{{ url_for('upload_resume') }}" class="dropdown-item">📄 My Resume</a>
+              <a href="{{ url_for('job_recommendations') }}" class="dropdown-item">💼 Job Matches</a>
+              <a href="{{ url_for('change_password') }}" class="dropdown-item">🔑 Change Password</a>
+              {% if current_user['role'] == 'admin' %}
+                <div class="dropdown-divider"></div>
+                <a href="{{ url_for('admin_dashboard') }}" class="dropdown-item">🛡 Admin Portal</a>
+              {% endif %}
+              <div class="dropdown-divider"></div>
+              <a href="{{ url_for('logout') }}" class="dropdown-item text-danger">⇥ Log Out</a>
+            </div>
+          </div>
+          <a href="{{ url_for('logout') }}" class="cyber-logout-btn">
+            <span>⇥</span> Logout
+          </a>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="cyber-logout-btn">Log In</a>
+          <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Get Started</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+  {% endblock %}
+
+  {% block main %}
   <main>
     <div class="container{% block container_class %}{% endblock %}">
       {% with messages = get_flashed_messages(with_categories=true) %}
@@ -45,9 +108,42 @@
       {% block content %}{% endblock %}
     </div>
   </main>
+  {% endblock %}
 
-  <footer>Resume AI &middot; Real-Time AI Resume Parsing &amp; Skill Matching Engine</footer>
+  {% block footer %}
+  <!-- Precision Reference Matching Footer -->
+  <footer class="cyber-footer">
+    <div class="cyber-footer-inner">
+      <div class="cyber-footer-left">
+        <span class="cyber-accent-line pink-violet"></span>
+        <span class="footer-text">Resume AI - Real-Time AI Resume Parsing &amp; Skill Matching Engine</span>
+      </div>
+      <div class="cyber-footer-right">
+        <span class="footer-text">Better Skills. Brighter Opportunities.</span>
+        <span class="cyber-accent-line violet-blue"></span>
+      </div>
+    </div>
+  </footer>
+  {% endblock %}
+
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const userBtn = document.getElementById('userMenuBtn');
+      const userDropdown = document.getElementById('userDropdown');
+      if (userBtn && userDropdown) {
+        userBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          userDropdown.classList.toggle('show');
+        });
+        document.addEventListener('click', function(e) {
+          if (!userDropdown.contains(e.target) && e.target !== userBtn) {
+            userDropdown.classList.remove('show');
+          }
+        });
+      }
+    });
+  </script>
   {% block extra_scripts %}{% endblock %}
 </body>
 </html>

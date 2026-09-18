@@ -3,12 +3,78 @@
 {% block content %}
 <div class="flex-between" style="margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
   <div>
-    <h2 class="mt-0">AI Resume Analysis</h2>
-    <p class="text-muted">Structured profile parsed from <strong>{{ resume.filename }}</strong>.</p>
+    <h2 class="mt-0">AI Resume Analysis & Skills Intelligence</h2>
+    <p class="text-muted">Extracted NLP profile parsed from <strong>{{ resume.filename }}</strong> (Version {{ resume.version }}).</p>
   </div>
   <div style="display:flex; gap:10px; align-items:center;">
-    <a href="{{ url_for('upload_resume') }}" class="btn btn-secondary btn-sm">Re-upload File</a>
-    <a href="{{ url_for('job_recommendations') }}" class="btn btn-primary btn-sm">View Job Matches &rarr;</a>
+    <a href="{{ url_for('confirm_resume_view', resume_id=resume.id) }}" class="btn btn-secondary btn-sm">Edit / Review Fields</a>
+    <a href="{{ url_for('upload_resume') }}" class="btn btn-secondary btn-sm">Upload New Version</a>
+    <a href="{{ url_for('job_recommendations') }}" class="btn btn-primary btn-sm">View Job Recommendations &rarr;</a>
+  </div>
+</div>
+
+<!-- Target Role Gap Analysis (Module 3 Spec) -->
+<div class="card" style="border-left: 4px solid var(--accent-cyan); background: var(--card-bg);">
+  <div class="flex-between" style="margin-bottom: 12px; flex-wrap: wrap; gap: 12px;">
+    <div>
+      <h3 class="mt-0" style="margin-bottom: 4px; color: #ffffff;">Target Role Gap Analysis</h3>
+      <p class="text-muted" style="margin: 0; font-size: 0.88rem;">
+        Benchmark your extracted skill set against standard industry target profiles.
+      </p>
+    </div>
+    <div>
+      <form method="GET" style="display: flex; gap: 8px; align-items: center;">
+        <label for="target_role" style="font-size: 0.85rem; font-weight: 600; white-space: nowrap; color: #cbd5e1;">Benchmark Role:</label>
+        <select name="target_role" id="target_role" onchange="this.form.submit()" style="padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.88rem; background: #0d132b; color: #ffffff;">
+          {% for role_name in role_profiles.keys() %}
+            <option value="{{ role_name }}" {% if target_role == role_name %}selected{% endif %}>{{ role_name }}</option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 16px; padding: 16px; background: rgba(10, 14, 32, 0.7); border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.25);">
+    <div style="text-align: center; min-width: 90px;">
+      <div style="font-size: 2rem; font-weight: 800; color: {% if gap_analysis.coverage_percentage >= 75 %}#22c55e{% elif gap_analysis.coverage_percentage >= 50 %}#38bdf8{% else %}#ef4444{% endif %}; text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);">
+        {{ gap_analysis.coverage_percentage }}%
+      </div>
+      <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8;">Readiness</div>
+    </div>
+    <div style="flex: 1;">
+      <div class="progress-bar-container" style="height: 10px; background: rgba(255, 255, 255, 0.12); border-radius: 5px; overflow: hidden; margin-bottom: 8px;">
+        <div style="width: {{ gap_analysis.coverage_percentage }}%; height: 100%; background: linear-gradient(90deg, #6366f1, #38bdf8, #22c55e); border-radius: 5px;"></div>
+      </div>
+      <div style="font-size: 0.85rem; color: #cbd5e1;">
+        {% for rec in gap_analysis.recommendations %}
+          <div>• {{ rec }}</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="gap: 16px;">
+    <div style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.25); border-radius: 12px; padding: 14px;">
+      <h4 style="margin: 0 0 8px 0; color: #86efac; font-size: 0.9rem;">Present Skills ({{ gap_analysis.present_required|length }})</h4>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+        {% for s in gap_analysis.present_required %}
+          <span style="background: rgba(34, 197, 94, 0.15); color: #86efac; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 500; border: 1px solid rgba(34, 197, 94, 0.3);">✓ {{ s }}</span>
+        {% else %}
+          <span class="text-muted" style="font-size: 0.8rem;">No required skills matched yet.</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 12px; padding: 14px;">
+      <h4 style="margin: 0 0 8px 0; color: #fca5a5; font-size: 0.9rem;">Missing Critical Skills ({{ gap_analysis.missing_required|length }})</h4>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+        {% for s in gap_analysis.missing_required %}
+          <span style="background: rgba(239, 68, 68, 0.15); color: #fca5a5; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 500; border: 1px solid rgba(239, 68, 68, 0.3);">✗ {{ s }}</span>
+        {% else %}
+          <span style="color: #86efac; font-size: 0.8rem; font-weight: 600;">None! All core skills covered.</span>
+        {% endfor %}
+      </div>
+    </div>
   </div>
 </div>
 
@@ -17,7 +83,7 @@
      data-skills='{{ resume.skills|tojson }}'>
   
   <div class="flex-between" style="margin-bottom:12px; flex-wrap:wrap; gap:8px;">
-    <h3 class="mt-0">Extracted Skills (<span id="skills-count-badge">{{ resume.skills|length }}</span>)</h3>
+    <h3 class="mt-0" style="color: #ffffff;">Extracted Skills (<span id="skills-count-badge">{{ resume.skills|length }}</span>)</h3>
     <span class="badge badge-skill" style="font-size:0.82rem;">⚡ Real-time Synced</span>
   </div>
   
@@ -25,7 +91,7 @@
     Click <span style="color:var(--error); font-weight:bold;">&times;</span> to remove any skill, or search below to add missing skills with instant match recalculation.
   </p>
 
-  <div id="editable-skills-list" style="min-height:52px; padding:14px; background:#f8fafc; border-radius:var(--radius-md); border:1.5px solid var(--border); margin-bottom:16px;">
+  <div id="editable-skills-list" style="min-height:52px; padding:14px; background: rgba(10, 14, 32, 0.7); border-radius:var(--radius-md); border: 1px solid var(--border); margin-bottom:16px;">
     <!-- Rendered dynamically by JavaScript -->
   </div>
 
@@ -34,16 +100,16 @@
       <span class="search-icon">🔍</span>
       <input type="text" id="add-skill-input" placeholder="Type a skill name (e.g. docker, aws, react, python)..." autocomplete="off">
     </div>
-    <button type="button" id="add-skill-btn" class="btn btn-primary btn-sm" style="height:42px; padding:0 18px; white-space:nowrap;">
+    <button type="button" id="add-skill-btn" class="btn btn-primary btn-sm" style="height:44px; padding:0 20px; white-space:nowrap;">
       + Add Skill
     </button>
-    <div id="skill-autocomplete-list" class="autocomplete-list" style="display:none;"></div>
+    <div id="skill-autocomplete-list" class="autocomplete-list" style="display:none; background: #0d132b; border: 1px solid var(--border); color: #fff;"></div>
   </div>
 </div>
 
 <div class="card">
   <div class="flex-between" style="margin-bottom:16px; flex-wrap:wrap; gap:12px;">
-    <h3 class="mt-0">Candidate Profile Details</h3>
+    <h3 class="mt-0" style="color: #ffffff;">Candidate Profile Details</h3>
     <button type="button" id="save-details-btn" class="btn btn-secondary btn-sm">
       ✓ Save Profile Changes
     </button>
@@ -63,22 +129,45 @@
   <div class="table-responsive">
     <table>
       <tbody>
-        <tr><th style="width:180px;">Detected Email</th><td>{{ resume.email or 'Not detected' }}</td></tr>
+        <tr><th style="width:200px;">Detected Email</th><td>{{ resume.email or 'Not detected' }}</td></tr>
         <tr><th>Detected Phone</th><td>{{ resume.phone or 'Not detected' }}</td></tr>
+        <tr><th>Degree Level</th><td>{{ resume.parsed_json.education_level or 'Bachelor Degree' }}</td></tr>
+        <tr><th>Field of Study</th><td>{{ resume.parsed_json.field_of_study or 'Engineering / Computer Science' }}</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
 <div class="card">
-  <h3 class="mt-0">Detected Education History</h3>
-  {% if resume.education %}
-  <ul style="padding-left:22px; line-height:1.8; color:var(--text-main);">
-    {% for e in resume.education %}<li><strong>{{ e }}</strong></li>{% endfor %}
-  </ul>
-  {% else %}
-  <p class="text-muted">No explicit degree lines were detected in the resume text.</p>
-  {% endif %}
+  <h3 class="mt-0" style="color: #ffffff;">Detected Education &amp; Work History</h3>
+  <div class="grid grid-2" style="gap: 20px;">
+    <div>
+      <h4 style="margin-top:0; font-size:0.95rem; color: var(--accent-cyan);">Education</h4>
+      {% if resume.education %}
+      <ul style="padding-left:20px; line-height:1.6; color:var(--text-body); font-size:0.9rem;">
+        {% for e in resume.education %}<li><strong style="color:#ffffff;">{{ e }}</strong></li>{% endfor %}
+      </ul>
+      {% else %}
+      <p class="text-muted" style="font-size:0.85rem;">No explicit education detected.</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <h4 style="margin-top:0; font-size:0.95rem; color: var(--accent-cyan);">Work History Timeline</h4>
+      {% if resume.parsed_json and resume.parsed_json.work_history %}
+      <div style="font-size:0.85rem; line-height:1.5;">
+        {% for w in resume.parsed_json.work_history %}
+          <div style="margin-bottom:8px; padding-bottom:6px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+            <strong style="color: #ffffff;">{{ w.organization }}</strong><br>
+            <span class="text-muted">{{ w.title_or_line }}</span>
+          </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-muted" style="font-size:0.85rem;">No work history blocks segmented.</p>
+      {% endif %}
+    </div>
+  </div>
 </div>
 
 <div class="card">

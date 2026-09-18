@@ -1,25 +1,362 @@
 {% extends "base.html" %}
-{% block title %}Log In{% endblock %}
-{% block container_class %} narrow{% endblock %}
-{% block content %}
-<div class="card">
-  <h2 class="mt-0">Log in</h2>
-  <form method="POST" novalidate>
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" value="{{ email or '' }}" required autofocus>
+{% block title %}Log In — Resume AI{% endblock %}
+{% block body_class %}cyber-login-body{% endblock %}
+
+{% block extra_head %}
+<!-- Google Fonts: Outfit and Caveat for handwritten accent -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block header %}
+<!-- Cyberpunk Top Navigation Header -->
+<header class="cyber-login-header">
+  <a href="{{ url_for('index') }}" class="cyber-login-brand">
+    <div class="cyber-logo-icon">
+      <span class="cyber-sparkle">&#10022;</span>
     </div>
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" required>
+    <div class="cyber-brand-text">
+      <span class="cyber-brand-name">Resume AI</span>
+      <span class="cyber-brand-sub">Smarter Resumes. Brighter Careers.</span>
     </div>
-    <button type="submit" class="btn btn-primary btn-block">Log In</button>
-  </form>
-  <p style="text-align:center; margin-top:16px; font-size:0.9rem;">
-    No account yet? <a href="{{ url_for('register') }}">Sign up</a>
-  </p>
-  <p style="text-align:center; font-size:0.8rem;" class="text-muted">
-    Demo admin login: admin@resumeai.local / Admin@123
-  </p>
+  </a>
+
+  <!-- Minimalist Vector Moon Icon Button -->
+  <button type="button" class="cyber-theme-toggle" id="cyber-theme-btn" title="Toggle Theme" aria-label="Toggle Theme">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+</header>
+{% endblock %}
+
+{% block main %}
+<!-- Atmospheric Background Layers -->
+<div class="cyber-login-bg">
+  <div class="cyber-login-dot-grid"></div>
+  <div class="cyber-glow-blue-center"></div>
+  <div class="cyber-glow-purple-left"></div>
+
+  <!-- Ethereal Neon Vector Swoop Ribbons (Smooth perimeter flows) -->
+  <svg class="cyber-neon-swoops" viewBox="0 0 1440 900" fill="none" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="swoopLeftGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#9333ea" stop-opacity="0.85"/>
+        <stop offset="60%" stop-color="#a855f7" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#00f0ff" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="swoopRightGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#00f0ff" stop-opacity="0"/>
+        <stop offset="40%" stop-color="#8b5cf6" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#c084fc" stop-opacity="0.85"/>
+      </linearGradient>
+      <filter id="neonGlowBlur" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="8" result="blur1"/>
+        <feGaussianBlur stdDeviation="22" result="blur2"/>
+        <feMerge>
+          <feMergeNode in="blur2"/>
+          <feMergeNode in="blur1"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+    <!-- Left outer contour sweeping along the bottom-left edge -->
+    <path d="M -80 340 C -10 660, 100 830, 360 860 C 520 878, 660 830, 780 770" stroke="url(#swoopLeftGrad)" stroke-width="2.5" filter="url(#neonGlowBlur)" opacity="0.85"/>
+    <!-- Right outer contour sweeping beneath and around the card -->
+    <path d="M 680 870 C 940 890, 1260 810, 1390 540 C 1440 430, 1490 280, 1520 200" stroke="url(#swoopRightGrad)" stroke-width="2.2" filter="url(#neonGlowBlur)" opacity="0.85"/>
+  </svg>
 </div>
+
+<!-- Main Split View Container -->
+<main class="cyber-login-main">
+  <div class="cyber-login-grid">
+
+    <!-- Left Column: Value Proposition & Feature Badges -->
+    <div class="cyber-login-col-left">
+      <!-- AI Engine Badge -->
+      <div class="cyber-login-badge">
+        <span class="cyber-login-badge-dot"></span>
+        <span class="cyber-login-badge-text">AI POWERED CAREER ENGINE</span>
+      </div>
+
+      <!-- Headline -->
+      <h1 class="cyber-login-headline">
+        Smarter<br>
+        Resumes.<br>
+        <span class="cyber-highlight-brighter">Brighter</span> <span class="cyber-highlight-careers">Careers.</span>
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="cyber-login-subtext">
+        Upload your resume, get AI-powered insights, match with the right jobs, and accelerate your career growth.
+      </p>
+
+      <!-- 3 Feature Cards Row -->
+      <div class="cyber-login-features-row">
+        <!-- Feature 1: AI Analysis -->
+        <div class="cyber-feature-card">
+          <div class="cyber-feat-icon-box">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </div>
+          <div class="cyber-feat-title">AI Analysis</div>
+          <div class="cyber-feat-desc">Instant insights</div>
+        </div>
+
+        <!-- Feature 2: Job Matching -->
+        <div class="cyber-feature-card">
+          <div class="cyber-feat-icon-box">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="6"></circle>
+              <circle cx="12" cy="12" r="2"></circle>
+            </svg>
+          </div>
+          <div class="cyber-feat-title">Job Matching</div>
+          <div class="cyber-feat-desc">Best opportunities</div>
+        </div>
+
+        <!-- Feature 3: Skill Growth -->
+        <div class="cyber-feature-card">
+          <div class="cyber-feat-icon-box">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+          </div>
+          <div class="cyber-feat-title">Skill Growth</div>
+          <div class="cyber-feat-desc">Personalized path</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Glassmorphism Login Card & Scribble Note -->
+    <div class="cyber-login-col-right">
+      <div class="cyber-card-and-note">
+        <div class="cyber-card-outer">
+          <div class="cyber-glass-card">
+
+            <!-- 3D Iridescent Star Gem (Top Right) -->
+            <div class="cyber-gem-float" title="Resume AI Core">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="gemGradTop" x1="32" y1="2" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#38bdf8" />
+                    <stop offset="50%" stop-color="#818cf8" />
+                    <stop offset="100%" stop-color="#4f46e5" />
+                  </linearGradient>
+                  <linearGradient id="gemGradRight" x1="62" y1="32" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#00f0ff" />
+                    <stop offset="50%" stop-color="#3b82f6" />
+                    <stop offset="100%" stop-color="#2563eb" />
+                  </linearGradient>
+                  <linearGradient id="gemGradBottom" x1="32" y1="62" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#a855f7" />
+                    <stop offset="50%" stop-color="#7c3aed" />
+                    <stop offset="100%" stop-color="#4c1d95" />
+                  </linearGradient>
+                  <linearGradient id="gemGradLeft" x1="2" y1="32" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#c084fc" />
+                    <stop offset="50%" stop-color="#9333ea" />
+                    <stop offset="100%" stop-color="#6b21a8" />
+                  </linearGradient>
+                  <radialGradient id="gemCenterRefract" cx="32" cy="32" r="16" fx="28" fy="28" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+                    <stop offset="45%" stop-color="#60a5fa" stop-opacity="0.8" />
+                    <stop offset="85%" stop-color="#7c3aed" stop-opacity="0.5" />
+                    <stop offset="100%" stop-color="#1e1b4b" stop-opacity="0.1" />
+                  </radialGradient>
+                </defs>
+                <!-- 4 Facet Outer Wings -->
+                <path d="M32 2L42 24L32 32L22 24Z" fill="url(#gemGradTop)" opacity="0.95"/>
+                <path d="M62 32L40 42L32 32L40 22Z" fill="url(#gemGradRight)" opacity="0.95"/>
+                <path d="M32 62L22 40L32 32L42 40Z" fill="url(#gemGradBottom)" opacity="0.95"/>
+                <path d="M2 32L24 22L32 32L24 42Z" fill="url(#gemGradLeft)" opacity="0.95"/>
+                <!-- Central Specular Diamond Core -->
+                <polygon points="32,16 48,32 32,48 16,32" fill="url(#gemCenterRefract)"/>
+                <!-- Specular Spark Highlight Lines -->
+                <line x1="32" y1="4" x2="32" y2="60" stroke="#ffffff" stroke-width="0.8" opacity="0.65"/>
+                <line x1="4" y1="32" x2="60" y2="32" stroke="#ffffff" stroke-width="0.8" opacity="0.65"/>
+              </svg>
+            </div>
+
+            <!-- Card Titles -->
+            <h2 class="cyber-card-title">Welcome Back</h2>
+            <p class="cyber-card-subtitle">Log in to continue your career journey</p>
+
+            <!-- Flash Messages inside Card -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <div style="margin-bottom: 20px;">
+                  {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}" style="border-radius: 10px; margin-bottom: 8px;">
+                      {{ message }}
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            <!-- Login Form -->
+            <form method="POST" action="{{ url_for('login') }}" class="cyber-login-form" novalidate>
+              <!-- Email Input -->
+              <div class="cyber-form-field">
+                <label for="email" class="cyber-field-label">Email</label>
+                <div class="cyber-input-wrapper">
+                  <span class="cyber-input-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                    </svg>
+                  </span>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="cyber-text-input"
+                    placeholder="Enter your email"
+                    value="{{ email or '' }}"
+                    required
+                    autofocus
+                    autocomplete="email"
+                  >
+                </div>
+              </div>
+
+              <!-- Password Input with Toggle -->
+              <div class="cyber-form-field">
+                <label for="password" class="cyber-field-label">Password</label>
+                <div class="cyber-input-wrapper">
+                  <span class="cyber-input-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                  </span>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="cyber-text-input"
+                    placeholder="Enter your password"
+                    required
+                    autocomplete="current-password"
+                  >
+                  <button type="button" class="cyber-pw-toggle" id="pw-toggle-btn" title="Show / Hide Password" aria-label="Toggle password visibility">
+                    <span id="pw-toggle-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Options Row: Remember Me & Forgot Password -->
+              <div class="cyber-auth-options">
+                <label class="cyber-checkbox-label">
+                  <input type="checkbox" name="remember" class="cyber-custom-checkbox" checked>
+                  <span>Remember me</span>
+                </label>
+                <a href="{{ url_for('forgot_password') }}" class="cyber-forgot-link">Forgot password?</a>
+              </div>
+
+              <!-- Primary Action Button -->
+              <button type="submit" class="cyber-login-submit-btn">
+                <span>Log In &rarr;</span>
+              </button>
+            </form>
+
+            <!-- Card Bottom Link -->
+            <p class="cyber-card-bottom-link">
+              Don't have an account? <a href="{{ url_for('register') }}" class="cyber-signup-accent">Sign up</a>
+            </p>
+          </div>
+        </div>
+
+        <!-- Whimsical Handwritten Script Accent (Right side of card) -->
+        <div class="cyber-script-note" aria-hidden="true">
+          <div>Your</div>
+          <div>Next Step</div>
+          <div>Starts Here</div>
+          <svg class="cyber-script-underline" width="115" height="18" viewBox="0 0 115 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 6 C38 3, 80 2, 110 8" stroke="rgba(255,255,255,0.75)" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M14 13 C46 10, 82 9, 106 14" stroke="rgba(255,255,255,0.5)" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+{% endblock %}
+
+{% block footer %}
+<!-- Cyber Footer Status Bar (Transparent background matching reference image) -->
+<footer class="cyber-login-footer-bar">
+  <div class="cyber-login-footer-left">
+    <span class="cyber-footer-dash">&#8212;</span>
+    <span>BUILD A BETTER TOMORROW</span>
+  </div>
+  <div class="cyber-login-footer-center">
+    Resume AI &middot; Real-Time AI Resume Parsing &amp; Skill Matching Engine
+  </div>
+</footer>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Password visibility toggle
+    const pwInput = document.getElementById('password');
+    const pwToggleBtn = document.getElementById('pw-toggle-btn');
+    const pwToggleIcon = document.getElementById('pw-toggle-icon');
+
+    if (pwToggleBtn && pwInput) {
+      let isVisible = false;
+      pwToggleBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        isVisible = !isVisible;
+        pwInput.type = isVisible ? 'text' : 'password';
+        
+        if (isVisible) {
+          pwToggleIcon.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          `;
+        } else {
+          pwToggleIcon.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          `;
+        }
+      });
+    }
+
+    // Interactive Theme Toggle button
+    const themeBtn = document.getElementById('cyber-theme-btn');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', function() {
+        document.body.classList.toggle('cyber-bright-pulse');
+        themeBtn.style.transform = 'scale(1.15) rotate(15deg)';
+        setTimeout(() => {
+          themeBtn.style.transform = '';
+        }, 300);
+      });
+    }
+  });
+</script>
 {% endblock %}

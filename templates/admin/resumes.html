@@ -66,9 +66,14 @@
           <td>{{ r.uploaded_at[:10] }}</td>
           <td style="white-space:nowrap; text-align:right;">
             <div class="table-actions">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="showParsedJsonModal({{ r.id }})">Inspect JSON</button>
               <a href="{{ url_for('resume_analysis', resume_id=r.id) }}" class="btn btn-secondary btn-sm">Analysis</a>
               <a href="{{ url_for('admin_download_resume', resume_id=r.id) }}" class="btn btn-secondary btn-sm">Download</a>
             </div>
+            <!-- Hidden raw parsed JSON store -->
+            <script type="application/json" id="parsed-json-data-{{ r.id }}">
+              {{ r.parsed_json|tojson }}
+            </script>
           </td>
         </tr>
         {% endfor %}
@@ -76,4 +81,41 @@
     </table>
   </div>
 </div>
+
+<!-- Modal for Inspecting Parsed JSON Output -->
+<div id="parsedJsonModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); z-index:9999; justify-content:center; align-items:center;">
+  <div style="background:#fff; border-radius:12px; width:90%; max-width:760px; max-height:85vh; display:flex; flex-direction:column; box-shadow:0 20px 25px -5px rgba(0,0,0,0.2);">
+    <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+      <h3 style="margin:0; font-size:1.1rem; color:#0f172a;">Parsed Resume JSON (Diagnostic View)</h3>
+      <button type="button" onclick="closeParsedJsonModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#64748b;">&times;</button>
+    </div>
+    <div style="padding:20px; overflow-y:auto; flex:1;">
+      <pre id="parsedJsonContent" style="background:#0f172a; color:#38bdf8; padding:16px; border-radius:8px; font-size:0.85rem; overflow-x:auto; margin:0; line-height:1.5;"></pre>
+    </div>
+    <div style="padding:12px 20px; border-top:1px solid #e2e8f0; text-align:right;">
+      <button type="button" class="btn btn-secondary btn-sm" onclick="closeParsedJsonModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showParsedJsonModal(resumeId) {
+  const el = document.getElementById("parsed-json-data-" + resumeId);
+  const container = document.getElementById("parsedJsonContent");
+  const modal = document.getElementById("parsedJsonModal");
+  if (el && container && modal) {
+    try {
+      const data = JSON.parse(el.textContent);
+      container.textContent = JSON.stringify(data, null, 2);
+    } catch(e) {
+      container.textContent = el.textContent;
+    }
+    modal.style.display = "flex";
+  }
+}
+function closeParsedJsonModal() {
+  const modal = document.getElementById("parsedJsonModal");
+  if (modal) modal.style.display = "none";
+}
+</script>
 {% endblock %}

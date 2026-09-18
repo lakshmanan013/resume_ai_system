@@ -1,6 +1,6 @@
 {% extends "admin/base_admin.html" %}
 {% set active = 'reports' %}
-{% block title %}Analytics &amp; Reports · Admin{% endblock %}
+{% block title %}Analytics &amp; Intelligence Reports · Admin{% endblock %}
 {% block extra_head %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
@@ -8,92 +8,174 @@
 <div class="flex-between" style="margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
   <div>
     <h2 class="mt-0">Analytics &amp; Intelligence Reports</h2>
-    <p class="text-muted">System-wide performance, aggregate candidate skill gaps, and match trends.</p>
+    <p class="text-muted">Market skill gaps, recruitment pipeline health, match distribution, and zero-candidate alerts.</p>
   </div>
-  <a href="{{ url_for('admin_export_report') }}" class="btn btn-secondary btn-sm" target="_blank">
-    📥 Export Data (JSON)
-  </a>
+  <div style="display:flex; gap:10px;">
+    <a href="{{ url_for('admin_export_report_csv') }}" class="btn btn-primary btn-sm">
+      📄 Export CSV Report
+    </a>
+    <a href="{{ url_for('admin_export_report_json') }}" class="btn btn-secondary btn-sm" target="_blank">
+      📥 Export JSON
+    </a>
+  </div>
 </div>
 
 <div class="stats-grid">
   <div class="stat-box"><div class="num">{{ stats.total_users }}</div><div class="label">Total Users</div></div>
   <div class="stat-box"><div class="num">{{ stats.total_resumes }}</div><div class="label">Resumes Parsed</div></div>
+  <div class="stat-box"><div class="num">{{ stats.total_jobs }}</div><div class="label">Active Jobs</div></div>
   <div class="stat-box"><div class="num">{{ stats.total_matches }}</div><div class="label">Matches Computed</div></div>
   <div class="stat-box"><div class="num">{{ stats.avg_match_score }}%</div><div class="label">Avg Match Score</div></div>
 </div>
 
-<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(400px, 1fr)); gap:24px; margin-bottom:24px;">
-  <div class="card mb-0">
-    <h3 class="mt-0">Top Missing Skills Distribution</h3>
-    <p class="text-muted" style="font-size:0.85rem; margin-bottom:16px;">
-      Skills most frequently lacking across applicant resumes relative to job requirements.
-    </p>
-    {% if stats.top_missing_skills %}
-    <div style="position:relative; height:260px;">
-      <canvas id="skillsGapChart"></canvas>
+<!-- Market Skill Gaps Section (Module 6 Requirement) -->
+<div class="card" style="padding: 24px; margin-bottom: 24px;">
+  <div class="flex-between" style="margin-bottom: 16px; flex-wrap: wrap;">
+    <div>
+      <h3 class="mt-0" style="margin-bottom: 4px;">Market Skill Gap Analysis</h3>
+      <p class="text-muted" style="margin: 0; font-size: 0.88rem;">
+        Compares skills most in demand by active job listings against supply present across candidate resumes.
+      </p>
     </div>
-    {% else %}
-    <p class="text-muted">No skill gap data recorded yet.</p>
-    {% endif %}
+    <span class="badge badge-skill">Supply vs. Demand</span>
   </div>
 
-  <div class="card mb-0">
-    <h3 class="mt-0">Job Demand &amp; Match Volume</h3>
-    <p class="text-muted" style="font-size:0.85rem; margin-bottom:16px;">
-      Most frequently matched job listings with average candidate fit score.
-    </p>
-    {% if stats.top_jobs %}
-    <div style="position:relative; height:260px;">
-      <canvas id="topJobsChart"></canvas>
-    </div>
-    {% else %}
-    <p class="text-muted">No job match data recorded yet.</p>
-    {% endif %}
-  </div>
-</div>
-
-<div class="card" style="padding:24px;">
-  <h3 class="mt-0" style="margin-bottom:4px;">Top Missing Skills (Upskilling Opportunities)</h3>
-  <p class="text-muted" style="font-size:0.86rem; margin-bottom:16px;">Skills most frequently absent from candidate profiles relative to market demand.</p>
-  {% if stats.top_missing_skills %}
+  {% if stats.skill_gap_analysis %}
   <div class="table-responsive">
     <table class="admin-table">
       <thead>
-        <tr><th>Skill Name</th><th style="text-align:center;">Candidates Missing This Skill</th><th>Actionable Training Suggestion</th></tr>
+        <tr>
+          <th>Skill</th>
+          <th style="text-align:center;">Job Market Demand</th>
+          <th style="text-align:center;">Candidate Supply</th>
+          <th style="text-align:center;">Market Deficit / Surplus</th>
+          <th>Market Indicator</th>
+        </tr>
       </thead>
       <tbody>
-        {% for s in stats.top_missing_skills %}
+        {% for gap in stats.skill_gap_analysis %}
         <tr>
-          <td><span class="badge badge-missing" style="font-size:0.85rem; font-weight:600;">{{ s.skill }}</span></td>
-          <td style="text-align:center;"><strong>{{ s.count }}</strong> candidate{{ 's' if s.count != 1 else '' }}</td>
-          <td class="text-muted">Recommend {{ s.skill|title }} learning module / skill accreditation</td>
+          <td><strong>{{ gap.skill }}</strong></td>
+          <td style="text-align:center;"><span class="badge badge-active">{{ gap.demand }} jobs</span></td>
+          <td style="text-align:center;"><span class="badge badge-skill">{{ gap.supply }} candidates</span></td>
+          <td style="text-align:center; font-weight:700; color: {% if gap.deficit > 0 %}#dc2626{% elif gap.deficit < 0 %}#16a34a{% else %}#64748b{% endif %};">
+            {% if gap.deficit > 0 %}+{{ gap.deficit }} (Deficit){% elif gap.deficit < 0 %}{{ gap.deficit }} (Surplus){% else %}Balanced{% endif %}
+          </td>
+          <td>
+            <span class="badge {% if gap.status == 'High Deficit' %}badge-missing{% elif gap.status == 'Equilibrium' %}badge-active{% else %}badge-skill{% endif %}">
+              {{ gap.status }}
+            </span>
+          </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
   {% else %}
-  <p class="text-muted">No missing skill gap data recorded yet.</p>
+  <p class="text-muted">No skill gap data recorded yet.</p>
   {% endif %}
+</div>
+
+<!-- Charts Section -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(380px, 1fr)); gap:24px; margin-bottom:24px;">
+  <div class="card mb-0">
+    <h3 class="mt-0">Most In-Demand Skills Across Postings</h3>
+    <p class="text-muted" style="font-size:0.85rem; margin-bottom:16px;">
+      Top required technologies specified by employers.
+    </p>
+    <div style="position:relative; height:240px;">
+      <canvas id="skillsDemandChart"></canvas>
+    </div>
+  </div>
+
+  <div class="card mb-0">
+    <h3 class="mt-0">Top Candidate Capabilities</h3>
+    <p class="text-muted" style="font-size:0.85rem; margin-bottom:16px;">
+      Most prevalent skills extracted from parsed applicant resumes.
+    </p>
+    <div style="position:relative; height:240px;">
+      <canvas id="skillsSupplyChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Zero Qualified Candidate Jobs & Top Matched Jobs -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(380px, 1fr)); gap:24px; margin-bottom:24px;">
+  <div class="card mb-0">
+    <h3 class="mt-0">⚠️ Jobs With Zero Qualified Candidates</h3>
+    <p class="text-muted" style="font-size:0.85rem; margin-bottom:14px;">
+      Active job listings that have 0 candidates matching &ge; 50% score.
+    </p>
+    {% if stats.zero_match_jobs %}
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr><th>Role</th><th>Company</th><th>Location</th></tr>
+        </thead>
+        <tbody>
+          {% for z in stats.zero_match_jobs %}
+          <tr>
+            <td><strong>{{ z.title }}</strong></td>
+            <td>{{ z.company }}</td>
+            <td class="text-muted">{{ z.location }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="padding: 16px; background: #f0fdf4; border-radius: 8px; color: #166534; font-size: 0.9rem;">
+      ✓ All active roles have at least one qualified candidate match!
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card mb-0">
+    <h3 class="mt-0">Top Matched Roles</h3>
+    <p class="text-muted" style="font-size:0.85rem; margin-bottom:14px;">
+      Jobs generating the highest candidate volume and average fit.
+    </p>
+    {% if stats.top_jobs %}
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr><th>Job Title</th><th>Matches</th><th>Avg Score</th></tr>
+        </thead>
+        <tbody>
+          {% for j in stats.top_jobs %}
+          <tr>
+            <td><strong>{{ j.title }}</strong><br><small class="text-muted">{{ j.company }}</small></td>
+            <td><span class="badge badge-active">{{ j.matches }}</span></td>
+            <td><strong style="color:var(--primary);">{{ j.avg_score|round(1) }}%</strong></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted">No matches computed yet.</p>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
-{% if stats.top_missing_skills %}
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const missingData = {{ stats.top_missing_skills|tojson }};
-  const ctxSkills = document.getElementById("skillsGapChart");
-  if (ctxSkills && missingData.length > 0) {
-    new Chart(ctxSkills, {
+  const reqData = {{ stats.most_requested_skills|tojson }};
+  const candData = {{ stats.most_common_candidate_skills|tojson }};
+
+  const ctxReq = document.getElementById("skillsDemandChart");
+  if (ctxReq && reqData.length > 0) {
+    new Chart(ctxReq, {
       type: 'bar',
       data: {
-        labels: missingData.map(d => d.skill),
+        labels: reqData.map(d => d.skill),
         datasets: [{
-          label: 'Times Missing',
-          data: missingData.map(d => d.count),
-          backgroundColor: 'rgba(239, 68, 68, 0.75)',
-          borderColor: '#ef4444',
+          label: 'Required in Jobs',
+          data: reqData.map(d => d.count),
+          backgroundColor: 'rgba(59, 130, 246, 0.75)',
+          borderColor: '#3b82f6',
           borderWidth: 1.5,
           borderRadius: 6
         }]
@@ -110,18 +192,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  const topJobsData = {{ stats.top_jobs|tojson }};
-  const ctxJobs = document.getElementById("topJobsChart");
-  if (ctxJobs && topJobsData.length > 0) {
-    new Chart(ctxJobs, {
+  const ctxCand = document.getElementById("skillsSupplyChart");
+  if (ctxCand && candData.length > 0) {
+    new Chart(ctxCand, {
       type: 'bar',
       data: {
-        labels: topJobsData.map(d => d.title.length > 18 ? d.title.slice(0, 16) + '...' : d.title),
+        labels: candData.map(d => d.skill),
         datasets: [{
-          label: 'Matches Run',
-          data: topJobsData.map(d => d.matches),
-          backgroundColor: 'rgba(99, 102, 241, 0.75)',
-          borderColor: '#6366f1',
+          label: 'Candidates Possessing',
+          data: candData.map(d => d.count),
+          backgroundColor: 'rgba(16, 185, 129, 0.75)',
+          borderColor: '#10b981',
           borderWidth: 1.5,
           borderRadius: 6
         }]
@@ -139,5 +220,4 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 </script>
-{% endif %}
 {% endblock %}

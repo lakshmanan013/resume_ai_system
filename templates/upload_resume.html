@@ -15,26 +15,26 @@
   </p>
 
   {% if existing %}
-  <div class="flash" style="background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; margin-bottom:24px;">
-    <span>📄 Current active resume: <strong>{{ existing.filename }}</strong> (uploaded {{ existing.uploaded_at[:10] }}). Uploading a new resume will instantly update your matches.</span>
+  <div class="flash flash-info" style="margin-bottom: 24px;">
+    <span>📄 Current active resume: <strong style="color: #ffffff;">{{ existing.filename }}</strong> (uploaded {{ existing.uploaded_at[:10] }}). Uploading a new resume will instantly update your matches.</span>
   </div>
   {% endif %}
 
   <form method="POST" enctype="multipart/form-data" id="upload-form">
-    <div class="dropzone-container" id="dropzone">
-      <div class="dropzone-icon">☁️</div>
-      <div class="dropzone-title">Drag &amp; drop your resume file here</div>
-      <div class="dropzone-sub">or click to browse from your computer (PDF or DOCX)</div>
+    <div class="dropzone-container" id="dropzone" style="background: rgba(10, 14, 32, 0.7); border: 2px dashed rgba(56, 189, 248, 0.35); border-radius: 18px; padding: 48px 24px;">
+      <div class="dropzone-icon" style="color: #38bdf8;">☁️</div>
+      <div class="dropzone-title" style="font-size: 1.25rem; font-weight: 700; color: #ffffff; margin-bottom: 6px;">Drag &amp; drop your resume file here</div>
+      <div class="dropzone-sub" style="color: #94a3b8; font-size: 0.92rem;">or click to browse from your computer (PDF or DOCX)</div>
       
       <input type="file" id="resume-file" name="resume" accept=".pdf,.docx" style="display:none;" required>
       
       <div id="file-info-display" style="margin-top:16px;">
-        <span class="hint">Supported formats: .pdf, .docx (Max 10MB)</span>
+        <span class="hint" style="color: #64748b;">Supported formats: .pdf, .docx (Max 10MB)</span>
       </div>
     </div>
 
     <div style="margin-top: 24px;">
-      <button type="submit" class="btn btn-primary btn-block" id="upload-submit" disabled>
+      <button type="submit" class="btn btn-primary btn-block" id="upload-submit" style="padding: 13px 24px; font-size: 1rem;" disabled>
         <span>⚡ Analyze Resume &amp; Find Matches</span>
       </button>
     </div>

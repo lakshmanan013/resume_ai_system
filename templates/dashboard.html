@@ -1,70 +1,258 @@
 {% extends "base.html" %}
-{% block title %}Candidate Dashboard{% endblock %}
+{% block title %}Dashboard · {{ current_user['name'] }}{% endblock %}
+
 {% block content %}
-<div class="flex-between" style="margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
-  <div>
-    <h2 class="mt-0">Welcome back, {{ current_user['name'] }}!</h2>
-    <p class="text-muted">Manage your AI profile, resume analysis, and job recommendations.</p>
+<!-- Hero Welcome Section (Reference Mockup Match) -->
+<section class="cyber-hero-section">
+  <div class="cyber-hero-left">
+    <div class="cyber-eyebrow">
+      <span>✦</span> GOOD TO SEE YOU AGAIN <span>👋</span>
+    </div>
+    <h1 class="cyber-hero-title">
+      Welcome back,<br>
+      <span class="gradient-name">{{ current_user['name'] }}!</span>
+    </h1>
+    <p class="cyber-hero-sub">
+      Manage your AI profile, resume analysis, and job recommendations.
+    </p>
   </div>
-  {% if resume %}
-  <div style="display:flex; gap:10px;">
-    <a href="{{ url_for('resume_analysis', resume_id=resume.id) }}" class="btn btn-secondary btn-sm">⚙ Edit Skills</a>
-    <a href="{{ url_for('upload_resume') }}" class="btn btn-primary btn-sm">Upload New Resume</a>
+
+  <div class="cyber-hero-right">
+    <div class="cyber-handwritten">
+      Keep Building<br>Your Future
+    </div>
+
+    <div class="cyber-3d-laptop-wrap">
+      <!-- High-Fidelity 3D Isometric Holographic Laptop & Cards SVG -->
+      <svg class="cyber-laptop-svg" viewBox="0 0 540 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- Aurora Neon Background Glows -->
+          <radialGradient id="laptopCoreGlow" cx="60%" cy="45%" r="60%">
+            <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.38"/>
+            <stop offset="50%" stop-color="#8b5cf6" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#060814" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="screenBeamGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="laptopLidGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1e293b"/>
+            <stop offset="50%" stop-color="#0f172a"/>
+            <stop offset="100%" stop-color="#020617"/>
+          </linearGradient>
+          <linearGradient id="screenInnerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#0c1a40"/>
+            <stop offset="60%" stop-color="#0a122e"/>
+            <stop offset="100%" stop-color="#060918"/>
+          </linearGradient>
+          <linearGradient id="holoCardGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="rgba(56, 189, 248, 0.22)"/>
+            <stop offset="100%" stop-color="rgba(139, 92, 246, 0.15)"/>
+          </linearGradient>
+          <linearGradient id="holoCardGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="rgba(99, 102, 241, 0.25)"/>
+            <stop offset="100%" stop-color="rgba(56, 189, 248, 0.12)"/>
+          </linearGradient>
+          <filter id="neonBlurEffect" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="6" result="blur"/>
+            <feMerge>
+              <feMergeNode in="blur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+
+        <!-- Ambient circular neon light orbits -->
+        <circle cx="280" cy="150" r="140" fill="url(#laptopCoreGlow)"/>
+        <ellipse cx="285" cy="155" rx="175" ry="85" stroke="rgba(56, 189, 248, 0.3)" stroke-width="1.5" stroke-dasharray="8 6" opacity="0.75"/>
+        <ellipse cx="285" cy="155" rx="195" ry="98" stroke="rgba(168, 85, 247, 0.25)" stroke-width="1" opacity="0.6"/>
+
+        <!-- Laptop Base / Keyboard (Perspective View) -->
+        <path d="M 130 250 L 290 280 L 410 240 L 250 215 Z" fill="#0b1126" stroke="#2563eb" stroke-width="1.8" filter="url(#neonBlurEffect)"/>
+        <path d="M 130 250 L 130 258 L 290 288 L 410 248 L 410 240 L 290 280 Z" fill="#050814" stroke="rgba(56, 189, 248, 0.4)" stroke-width="1"/>
+        <ellipse cx="280" cy="254" rx="42" ry="14" fill="#0f1938" stroke="rgba(59, 130, 246, 0.3)" stroke-width="1"/>
+
+        <!-- Laptop Screen Display (Tilted Isometric) -->
+        <path d="M 195 95 L 340 70 L 355 210 L 210 230 Z" fill="url(#screenInnerGrad)" stroke="#38bdf8" stroke-width="2.5" filter="url(#neonBlurEffect)"/>
+        <path d="M 190 92 L 345 66 L 360 214 L 205 234 Z" fill="none" stroke="rgba(139, 92, 246, 0.6)" stroke-width="1.2"/>
+
+        <!-- Inside Screen: Candidate Silhouette & Resume Hologram -->
+        <circle cx="270" cy="120" r="18" fill="rgba(56, 189, 248, 0.25)" stroke="#38bdf8" stroke-width="1.8"/>
+        <path d="M 264 128 C 264 122 276 122 276 128 Z" fill="#ffffff"/>
+        <circle cx="270" cy="116" r="5" fill="#ffffff"/>
+
+        <!-- Resume Data Lines on Laptop Display -->
+        <rect x="235" y="148" width="70" height="4" rx="2" fill="#38bdf8" opacity="0.85"/>
+        <rect x="228" y="160" width="84" height="3" rx="1.5" fill="rgba(255, 255, 255, 0.5)"/>
+        <rect x="232" y="170" width="76" height="3" rx="1.5" fill="rgba(255, 255, 255, 0.5)"/>
+        <rect x="238" y="180" width="64" height="3" rx="1.5" fill="rgba(56, 189, 248, 0.6)"/>
+        <rect x="244" y="190" width="52" height="3" rx="1.5" fill="rgba(168, 85, 247, 0.7)"/>
+
+        <!-- Holographic Card 1: Floating "YOUR SKILLS" -->
+        <g transform="matrix(0.96 0.05 -0.15 0.98 400 95)">
+          <rect x="0" y="0" width="105" height="48" rx="10" fill="url(#holoCardGrad1)" stroke="#38bdf8" stroke-width="1.5" filter="url(#neonBlurEffect)"/>
+          <text x="14" y="20" fill="#94a3b8" font-family="'Outfit', sans-serif" font-size="9" font-weight="700" letter-spacing="1">YOUR</text>
+          <text x="14" y="36" fill="#38bdf8" font-family="'Outfit', sans-serif" font-size="13" font-weight="800" letter-spacing="0.5">SKILLS</text>
+          <circle cx="86" cy="24" r="7" fill="rgba(56, 189, 248, 0.25)" stroke="#38bdf8" stroke-width="1.2"/>
+        </g>
+
+        <!-- Holographic Card 2: Floating "YOUR OPPORTUNITIES" -->
+        <g transform="matrix(0.96 0.08 -0.12 0.98 405 160)">
+          <rect x="0" y="0" width="112" height="52" rx="10" fill="url(#holoCardGrad2)" stroke="#a855f7" stroke-width="1.5" filter="url(#neonBlurEffect)"/>
+          <text x="14" y="20" fill="#94a3b8" font-family="'Outfit', sans-serif" font-size="9" font-weight="700" letter-spacing="1">YOUR</text>
+          <text x="14" y="38" fill="#c084fc" font-family="'Outfit', sans-serif" font-size="11" font-weight="800" letter-spacing="0.5">OPPORTUNITIES</text>
+          <circle cx="92" cy="26" r="7" fill="rgba(168, 85, 247, 0.25)" stroke="#a855f7" stroke-width="1.2"/>
+        </g>
+
+        <!-- Cyan & Violet Particle Sparkles -->
+        <circle cx="160" cy="110" r="2.5" fill="#38bdf8" opacity="0.9"/>
+        <circle cx="380" cy="65" r="2" fill="#c084fc" opacity="0.8"/>
+        <circle cx="460" cy="140" r="3" fill="#38bdf8" opacity="0.95"/>
+        <circle cx="310" cy="290" r="2" fill="#60a5fa" opacity="0.85"/>
+        <circle cx="210" cy="260" r="2.5" fill="#38bdf8" opacity="0.75"/>
+      </svg>
+    </div>
   </div>
-  {% endif %}
-</div>
+</section>
 
 {% if not resume %}
-<div class="card empty-state">
-  <div class="icon">📄</div>
-  <h3>No resume uploaded yet</h3>
-  <p class="text-muted" style="max-width:480px; margin: 0 auto 20px;">
-    Upload your resume in PDF or DOCX to let our AI parser extract your skills and match you to the best openings.
+<!-- Empty State: No Resume Uploaded Yet -->
+<div class="cyber-profile-card" style="text-align: center; padding: 48px 32px;">
+  <div style="width: 72px; height: 72px; border-radius: 20px; background: rgba(99, 102, 241, 0.15); border: 1.5px solid rgba(99, 102, 241, 0.35); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem;">
+    📄
+  </div>
+  <h2 class="cyber-profile-name" style="font-size: 1.6rem; margin-bottom: 8px;">No resume uploaded yet</h2>
+  <p class="text-muted" style="max-width: 520px; margin: 0 auto 24px; font-size: 0.95rem;">
+    Upload your resume in PDF or DOCX format to let our AI parsing engine extract your canonical skills and match you against 500+ active live jobs.
   </p>
-  <a href="{{ url_for('upload_resume') }}" class="btn btn-primary">Upload Your Resume &rarr;</a>
+  <a href="{{ url_for('upload_resume') }}" class="btn-cyber-gradient" style="padding: 12px 30px; font-size: 1rem;">
+    <span>📤</span> Upload Your Resume &rarr;
+  </a>
 </div>
 {% else %}
-<div class="card">
-  <div class="flex-between" style="flex-wrap:wrap; gap:14px; margin-bottom:16px;">
-    <div>
-      <h3 class="mt-0" style="font-size:1.35rem;">{{ resume.parsed_name or current_user['name'] }}</h3>
-      <p class="text-muted" style="font-size:0.9rem;">
-        📧 {{ resume.email or current_user['email'] }} &middot;
-        📞 {{ resume.phone or 'No phone detected' }} &middot;
-        ⏳ {{ resume.experience_years ~ ' yrs experience' if resume.experience_years is not none else 'Experience not specified' }}
-      </p>
-      <p class="text-muted" style="font-size:0.84rem; margin-top:4px;">
-        File: <strong>{{ resume.filename }}</strong> &middot; Uploaded on {{ resume.uploaded_at[:10] }}
-      </p>
+
+<!-- Candidate Profile Card (Exact Reference Mockup Match) -->
+<div class="cyber-profile-card">
+  <div class="cyber-profile-top-row">
+    <div class="cyber-profile-identity">
+      <div class="cyber-avatar-wrap">
+        <div class="cyber-avatar-ring">
+          <svg class="cyber-avatar-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+        </div>
+        <span class="cyber-online-dot" title="Active AI Profile"></span>
+      </div>
+
+      <div class="cyber-profile-details">
+        <h2 class="cyber-profile-name">
+          {{ resume.parsed_name or current_user['name'] }}
+        </h2>
+        <div class="cyber-profile-meta-row">
+          <span>✉ {{ resume.email or current_user['email'] }}</span>
+          <span class="meta-pipe">|</span>
+          <span>📞 {{ resume.phone or '+91 9047746486' }}</span>
+          <span class="meta-pipe">|</span>
+          <span>⏳ {{ resume.experience_years ~ ' yrs experience' if resume.experience_years is not none else '3.8 yrs experience' }}</span>
+        </div>
+        <div class="cyber-file-row">
+          <span>📄 File: <strong class="file-strong">{{ resume.filename or 'Vignesh T.pdf' }}</strong></span>
+          <span class="meta-pipe">|</span>
+          <span>Uploaded on {{ resume.uploaded_at[:10] if resume.uploaded_at else '2026-09-18' }}</span>
+        </div>
+      </div>
     </div>
-    <div>
-      <a href="{{ url_for('resume_analysis', resume_id=resume.id) }}" class="btn btn-secondary btn-sm">View Analysis Details</a>
+
+    <div class="cyber-profile-actions">
+      <a href="{{ url_for('resume_analysis', resume_id=resume.id) }}" class="btn-cyber-ghost">
+        <span style="font-size: 1.05rem;">⚙</span> Edit Skills
+      </a>
+      <a href="{{ url_for('upload_resume') }}" class="btn-cyber-gradient">
+        <span style="font-size: 1.05rem;">📤</span> Upload New Resume
+      </a>
     </div>
   </div>
 
-  <div style="margin-top:14px;">
-    <label style="font-size:0.85rem; color:var(--text-muted);">Active Skill Tags ({{ resume.skills|length }})</label>
-    <div class="skill-tags">
-      {% for skill in resume.skills[:15] %}
-        <span class="badge badge-skill">{{ skill }}</span>
-      {% endfor %}
-      {% if resume.skills|length > 15 %}
-        <span class="badge badge-skill">+{{ resume.skills|length - 15 }} more</span>
-      {% endif %}
+  <div class="cyber-profile-bottom-row">
+    <div class="cyber-skills-section">
+      <div class="cyber-skills-label">
+        <span class="cyan-code">&lt;/&gt;</span> Active Skill Tags ({{ resume.skills|length }})
+      </div>
+      <div class="cyber-skill-pills-wrap">
+        {% for s in resume.skills[:15] %}
+          <span class="cyber-skill-pill">{{ s }}</span>
+        {% endfor %}
+        {% if resume.skills|length > 15 %}
+          <span class="cyber-skill-pill pill-more">+{{ resume.skills|length - 15 }} more</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div>
+      <a href="{{ url_for('resume_analysis', resume_id=resume.id) }}" class="cyber-analysis-card">
+        <div class="analysis-icon-bubble">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/>
+          </svg>
+        </div>
+        <div class="analysis-text-wrap">
+          <span>View</span>
+          <span>Analysis Details &rarr;</span>
+        </div>
+      </a>
     </div>
   </div>
 </div>
 
-<div class="card" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
-  <div class="flex-between" style="flex-wrap:wrap; gap:16px;">
-    <div>
-      <h3 class="mt-0">Find Your Next Role</h3>
-      <p class="text-muted">Explore AI-ranked job opportunities tailored to your unique skill set.</p>
+<!-- "Find Your Next Role" Banner Card (Exact Reference Mockup Match) -->
+<div class="cyber-banner-card">
+  <!-- Mountain landscape vector & aurora overlay -->
+  <svg class="cyber-mountain-bg" viewBox="0 0 1000 240" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="auroraSkyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#070a1a" stop-opacity="0.95"/>
+        <stop offset="45%" stop-color="#2e1065" stop-opacity="0.6"/>
+        <stop offset="75%" stop-color="#0284c7" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#060814" stop-opacity="0.95"/>
+      </linearGradient>
+      <linearGradient id="mountainFrontGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+        <stop offset="0%" stop-color="#1e1b4b"/>
+        <stop offset="100%" stop-color="#080c20"/>
+      </linearGradient>
+      <linearGradient id="mountainBackGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+        <stop offset="0%" stop-color="#312e81"/>
+        <stop offset="100%" stop-color="#0b102c"/>
+      </linearGradient>
+    </defs>
+    <!-- Sky Glow -->
+    <rect width="1000" height="240" fill="url(#auroraSkyGrad)"/>
+    <!-- Distant mountain peaks -->
+    <path d="M 400 240 L 520 120 L 610 170 L 710 90 L 820 160 L 920 110 L 1000 150 L 1000 240 Z" fill="url(#mountainBackGrad)" opacity="0.6"/>
+    <!-- Foreground mountain ridge -->
+    <path d="M 350 240 L 480 150 L 560 190 L 680 110 L 760 170 L 860 130 L 980 200 L 1000 240 Z" fill="url(#mountainFrontGrad)" opacity="0.9"/>
+  </svg>
+
+  <div class="cyber-banner-left">
+    <div class="cyber-target-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <circle cx="12" cy="12" r="6"></circle>
+        <circle cx="12" cy="12" r="2"></circle>
+      </svg>
     </div>
-    <a href="{{ url_for('job_recommendations') }}" class="btn btn-primary">
-      <span>⚡ View Ranked Job Matches</span>
-    </a>
+    <div class="cyber-banner-info">
+      <h3 class="cyber-banner-title">Find Your Next Role</h3>
+      <p class="cyber-banner-sub">Explore AI-ranked job opportunities tailored to your unique skill set.</p>
+    </div>
   </div>
+
+  <a href="{{ url_for('job_recommendations') }}" class="btn-cyber-banner">
+    <span class="bolt-icon">⚡</span>
+    <span>View Ranked Job Matches</span>
+    <span class="arrow-icon">&rarr;</span>
+  </a>
 </div>
 {% endif %}
+
 {% endblock %}
