@@ -58,7 +58,7 @@
           <td><strong>{{ gap.skill }}</strong></td>
           <td style="text-align:center;"><span class="badge badge-active">{{ gap.demand }} jobs</span></td>
           <td style="text-align:center;"><span class="badge badge-skill">{{ gap.supply }} candidates</span></td>
-          <td style="text-align:center; font-weight:700; color: {% if gap.deficit > 0 %}#dc2626{% elif gap.deficit < 0 %}#16a34a{% else %}#64748b{% endif %};">
+          <td style="text-align:center; font-weight:700;" class="{% if gap.deficit > 0 %}deficit-positive{% elif gap.deficit < 0 %}deficit-negative{% else %}deficit-zero{% endif %}">
             {% if gap.deficit > 0 %}+{{ gap.deficit }} (Deficit){% elif gap.deficit < 0 %}{{ gap.deficit }} (Surplus){% else %}Balanced{% endif %}
           </td>
           <td>

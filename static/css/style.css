@@ -838,6 +838,27 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .score-num.mid { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
 .score-num.low { color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
 
+/* Gap Analysis Readiness Score & Utility Deficit Classes */
+.gap-readiness-score {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.1;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+.gap-readiness-score.readiness-high {
+  color: #22c55e;
+}
+.gap-readiness-score.readiness-mid {
+  color: #38bdf8;
+}
+.gap-readiness-score.readiness-low {
+  color: #ef4444;
+}
+
+.deficit-positive { color: #dc2626; }
+.deficit-negative { color: #16a34a; }
+.deficit-zero { color: #64748b; }
+
 /* ==========================================================================
    10. Interactive Badges & Skill Tag Manager
    ========================================================================== */
@@ -1292,6 +1313,7 @@ tr:hover td {
   font-weight: 700;
   background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   line-height: 1.1;
 }
@@ -1331,6 +1353,7 @@ tr:hover td {
   line-height: 1.15;
   background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -1783,6 +1806,7 @@ body.cyber-landing-body {
 .cyber-text-gradient {
   background: linear-gradient(90deg, #00f0ff 0%, #38bdf8 40%, #c084fc 72%, #f43f5e 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline;
 }
@@ -2614,6 +2638,7 @@ body.cyber-landing-body {
 .cyber-highlight-brighter {
   background: linear-gradient(135deg, #f43f5e 0%, #ec4899 50%, #d946ef 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 0 22px rgba(236, 72, 153, 0.35));
 }
@@ -2621,6 +2646,7 @@ body.cyber-landing-body {
 .cyber-highlight-careers {
   background: linear-gradient(135deg, #00f0ff 0%, #38bdf8 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 0 22px rgba(56, 189, 248, 0.35));
 }
@@ -3349,6 +3375,7 @@ body.cyber-landing-body {
 .gradient-name {
   background: linear-gradient(135deg, #818cf8 0%, #c084fc 45%, #60a5fa 90%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 35px rgba(129, 140, 248, 0.4);
   font-weight: 900;

@@ -36,14 +36,14 @@
 
   <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 16px; padding: 16px; background: rgba(10, 14, 32, 0.7); border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.25);">
     <div style="text-align: center; min-width: 90px;">
-      <div style="font-size: 2rem; font-weight: 800; color: {% if gap_analysis.coverage_percentage >= 75 %}#22c55e{% elif gap_analysis.coverage_percentage >= 50 %}#38bdf8{% else %}#ef4444{% endif %}; text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);">
+      <div class="gap-readiness-score {% if gap_analysis.coverage_percentage >= 75 %}readiness-high{% elif gap_analysis.coverage_percentage >= 50 %}readiness-mid{% else %}readiness-low{% endif %}">
         {{ gap_analysis.coverage_percentage }}%
       </div>
       <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8;">Readiness</div>
     </div>
     <div style="flex: 1;">
       <div class="progress-bar-container" style="height: 10px; background: rgba(255, 255, 255, 0.12); border-radius: 5px; overflow: hidden; margin-bottom: 8px;">
-        <div style="width: {{ gap_analysis.coverage_percentage }}%; height: 100%; background: linear-gradient(90deg, #6366f1, #38bdf8, #22c55e); border-radius: 5px;"></div>
+        <div class="score-bar-fill" data-score-pct="{{ gap_analysis.coverage_percentage }}" style="border-radius: 5px;"></div>
       </div>
       <div style="font-size: 0.85rem; color: #cbd5e1;">
         {% for rec in gap_analysis.recommendations %}
